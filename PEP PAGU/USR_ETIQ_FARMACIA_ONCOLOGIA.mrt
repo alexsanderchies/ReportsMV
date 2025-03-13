@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbJ14sYKovDbKGg0TUDop43eQ8nIWzFte2Ht2GP4NGKK4NUJTlkx7EJN2fTxyblj03bNa9dIW+zbXtDcRxQlCsVatcvOaqnd6Xih2GHJamOCOLOlX1BCcfl3OYTTfKjrwjrZbOt7QsHCKOX48z0ll9XUyeteSstxxkxR+GNE46eL2PelzU2jGfEGnEzHcSO/2XpPTM04S+h5KFXwynys5996t6VPWmvFbxXVSeZ0NWKBsvfv1TjYvOwosXTEaWRz8Tp1gMRK8gHpS4TcR0TgEo0sf4zOezFIzGcxSWUls5/kVpUC5k9DpO0e0IDqbaxr42jLCUlXmoBqen1J5Q3g</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="3" isList="true"><ETQ_PREPARACAO Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>ETQ_PREPARACAO</Alias><Columns count="27" isList="true"><value>CD_ATENDIMENTO,System.Int32</value><value>CD_ITPRE_MED,System.Int32</value><value>CD_ITSOLSAI_PRO,System.Int32</value><value>CD_LOTE,System.String</value><value>CD_PACIENTE,System.Int32</value><value>CD_PRE_MED,System.Int32</value><value>CD_PRODUTO_ATENDIDO,System.Int32</value><value>CD_SOLSAI_PRO,System.Int32</value><value>CD_UNID_INT,System.Int32</value><value>CD_UNI_PRO,System.Double</value><value>CUIDADOS_ADM,System.String</value><value>DOSE,System.Decimal</value><value>DS_FOR_APL,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_STATUS,System.String</value><value>DTH_VALIDADE,System.String</value><value>DT_ATENDIMENTO,System.DateTime</value><value>DT_NASCIMENTO,System.String</value><value>HR_PREPARO,System.String</value><value>NM_PACIENTE,System.String</value><value>NR_ORDEM_IMPRESSAO,System.Int32</value><value>RESPONSAVEL,System.String</value><value>SN_ACONDICIONADO,System.String</value><value>TEMPO_INFUSAO,System.String</value><value>USU_PREPARACAO,System.String</value><value>VL_FATOR,System.Decimal</value><value>VOLUME,System.Decimal</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ETQ_PREPARACAO</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT  
+       ATENDIME.CD_ATENDIMENTO
+      ,ATENDIME.DT_ATENDIMENTO
+      ,PACIENTE.CD_PACIENTE
+      ,PACIENTE.NM_PACIENTE
+      ,TO_CHAR(PACIENTE.DT_NASCIMENTO, 'DD/MM/RRRR') DT_NASCIMENTO
+      ,PREPARACAO_LOTE.CD_SOLSAI_PRO
+      ,ITPRE_MED.CD_PRE_MED
+      ,(SELECT P.NM_PRESTADOR||' - '||C.DS_CONSELHO||': '||DS_CODIGO_CONSELHO 
+           FROM DBAMV.PRESTADOR P, DBAMV.CONSELHO C 
+          WHERE C.CD_CONSELHO = P.CD_CONSELHO 
+            AND P.CD_PRESTADOR = PRE_MED.CD_PRESTADOR) RESPONSAVEL
+      ,To_Char(PREPARACAO_LOTE.HR_PREPARACAO, 'DD/MM/RRRR HH24:MI') HR_PREPARO
+      ,PREPARACAO_LOTE.DS_STATUS 
+      ,PREPARACAO_LOTE.CD_ITPRE_MED       
+      ,ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+      ,ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO
+      ,PRODUTO.DS_PRODUTO
+      ,PRODUTO.SN_ACONDICIONADO
+      ,ITPRE_PAD.NR_ORDEM_IMPRESSAO
+      ,ITPRE_MED.QT_ITPRE_MED DOSE
+      ,UNI_PRO.VL_FATOR
+      ,Trunc((ITPRE_MED.QT_ITPRE_MED / UNI_PRO.VL_FATOR),2) VOLUME  
+      ,FOR_APL.DS_FOR_APL
+      ,Nvl(ITPRE_MED.NR_HORA,0)||'h '||': '||
+       Nvl(ITPRE_MED.NR_MINUTO,0)||'min' TEMPO_INFUSAO
+      ,Decode(PRODUTO.TP_CARATER,
+              'I','IRRITANTE',
+              'V','VESICANTE',
+              '', NULL)
+              CUIDADOS_ADM
+      ,To_Char(PREPARACAO_LOTE.DH_VALIDADE_DROGA , 'DD/MM/RRRR HH24:MI') DTH_VALIDADE
+      ,PRESTADOR.NM_PRESTADOR||' - '||CONSELHO.DS_CONSELHO||': '||DS_CODIGO_CONSELHO USU_PREPARACAO
+      ,PREPARACAO_LOTE.CD_UNID_INT               
+      ,ITPREPARACAO_LOTE.CD_LOTE 
+      ,ITPREPARACAO_LOTE.CD_UNI_PRO
+ FROM DBAMV.PREPARACAO_LOTE
+ JOIN DBAMV.ITPREPARACAO_LOTE ON PREPARACAO_LOTE.CD_PREPARACAO_LOTE = ITPREPARACAO_LOTE.CD_PREPARACAO_LOTE
+  AND ITPREPARACAO_LOTE.SN_ONCOLOGIA = 'S'                                     
+ JOIN DBAMV.PRODUTO ON ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = PRODUTO.CD_PRODUTO 
+ JOIN DBAMV.ITPRE_MED ON PREPARACAO_LOTE.CD_ITPRE_MED = ITPRE_MED.CD_ITPRE_MED 
+ JOIN DBAMV.PRE_MED ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED                                      
+ JOIN DBAMV.TIP_PRESC ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC                                                                           
+ JOIN DBAMV.ATENDIME ON PRE_MED.CD_ATENDIMENTO = ATENDIME.CD_ATENDIMENTO
+ JOIN DBAMV.PACIENTE ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+ JOIN DBASGU.USUARIOS ON PREPARACAO_LOTE.CD_USUARIO = USUARIOS.CD_USUARIO 
+ LEFT JOIN DBAMV.ITPRE_PAD ON ITPRE_MED.CD_ITPRE_PAD = ITPRE_PAD.CD_ITPRE_PAD
+ LEFT JOIN DBAMV.FOR_APL ON ITPRE_MED.CD_FOR_APL = FOR_APL.CD_FOR_APL
+ LEFT JOIN DBAMV.ITSOLSAI_PRO ON ITPRE_MED.CD_ITPRE_MED = ITSOLSAI_PRO.CD_ITPRE_MED  
+  AND ITPREPARACAO_LOTE.CD_ITSOLSAI_PRO = ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+  AND ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = ITSOLSAI_PRO.CD_PRODUTO
+ LEFT JOIN DBAMV.PRESTADOR ON USUARIOS.CD_PRESTADOR = PRESTADOR.CD_PRESTADOR
+ LEFT JOIN DBAMV.CONSELHO ON PRESTADOR.CD_CONSELHO = CONSELHO.CD_CONSELHO
+ LEFT JOIN DBAMV.UNI_PRO ON ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = UNI_PRO.CD_PRODUTO
+  AND UNI_PRO.TP_RELATORIOS = '4'                                  
+WHERE PREPARACAO_LOTE.CD_PREPARACAO_LOTE = {preparo}</SqlCommand><Type>Table</Type></ETQ_PREPARACAO><ITENS_COMPONENTES Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>ITENS_COMPONENTES</Alias><Columns count="15" isList="true"><value>CD_ATENDIMENTO,System.Double</value><value>CD_ITPRE_MED,System.Double</value><value>CD_ITSOLSAI_PRO,System.Double</value><value>CD_PACIENTE,System.Double</value><value>CD_PRODUTO_ATENDIDO,System.Double</value><value>DH_VALIDADE_DROGA,System.DateTime</value><value>DOSE,System.Decimal</value><value>DS_FOR_APL,System.String</value><value>DS_PRODUTO,System.String</value><value>HR_PREPARACAO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>TEMPO_INFUSAO,System.String</value><value>USU_PREPARACAO,System.String</value><value>VL_FATOR,System.Double</value><value>VOLUME,System.Decimal</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ITENS_COMPONENTES</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT   
+       ATENDIME.CD_ATENDIMENTO
+      ,PACIENTE.CD_PACIENTE
+      ,PACIENTE.NM_PACIENTE
+      ,PREPARACAO_LOTE.HR_PREPARACAO       
+      ,PREPARACAO_LOTE.CD_ITPRE_MED       
+      ,ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+      ,ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO
+      ,PRODUTO.DS_PRODUTO
+      ,ITPREPARACAO_LOTE.QT_PRODUTO DOSE
+      ,UNI_PRO.VL_FATOR
+      ,Trunc((ITPREPARACAO_LOTE.QT_PRODUTO / UNI_PRO.VL_FATOR),2) VOLUME
+      ,FOR_APL.DS_FOR_APL
+      ,ITPRE_MED.NR_DIAS||' - '||ITPRE_MED.NR_HORA||':'||ITPRE_MED.NR_MINUTO TEMPO_INFUSAO
+      ,PREPARACAO_LOTE.DH_VALIDADE_DROGA
+     ,PRESTADOR.NM_PRESTADOR||' - '||CONSELHO.DS_CONSELHO||': '||DS_CODIGO_CONSELHO USU_PREPARACAO
+ FROM DBAMV.PREPARACAO_LOTE
+ JOIN DBAMV.ITPREPARACAO_LOTE ON PREPARACAO_LOTE.CD_PREPARACAO_LOTE = ITPREPARACAO_LOTE.CD_PREPARACAO_LOTE
+ AND ITPREPARACAO_LOTE.SN_ONCOLOGIA = 'N'                                     
+ JOIN DBAMV.PRODUTO ON ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = PRODUTO.CD_PRODUTO 
+ JOIN DBAMV.ITPRE_MED ON PREPARACAO_LOTE.CD_ITPRE_MED = ITPRE_MED.CD_ITPRE_MED
+ JOIN DBAMV.HRITPRE_MED ON PREPARACAO_LOTE.CD_ITPRE_MED = HRITPRE_MED.CD_ITPRE_MED 
+ JOIN DBAMV.PRE_MED ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED                                      
+ JOIN DBAMV.TIP_PRESC ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC                                                                           
+ JOIN DBAMV.ATENDIME ON PRE_MED.CD_ATENDIMENTO = ATENDIME.CD_ATENDIMENTO
+ JOIN DBAMV.PACIENTE ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+ JOIN DBASGU.USUARIOS ON PREPARACAO_LOTE.CD_USUARIO = USUARIOS.CD_USUARIO
+ LEFT JOIN DBAMV.FOR_APL ON ITPRE_MED.CD_FOR_APL = FOR_APL.CD_FOR_APL
+ LEFT JOIN DBAMV.ITSOLSAI_PRO ON ITPRE_MED.CD_ITPRE_MED = ITSOLSAI_PRO.CD_ITPRE_MED  
+  AND ITPREPARACAO_LOTE.CD_ITSOLSAI_PRO = ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+  AND ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = ITSOLSAI_PRO.CD_PRODUTO
+ LEFT JOIN DBAMV.PRESTADOR ON USUARIOS.CD_PRESTADOR = PRESTADOR.CD_PRESTADOR
+ LEFT JOIN DBAMV.CONSELHO ON PRESTADOR.CD_CONSELHO = CONSELHO.CD_CONSELHO
+ LEFT JOIN DBAMV.UNI_PRO ON ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = UNI_PRO.CD_PRODUTO                                                                          
+  AND UNI_PRO.TP_RELATORIOS = 'R'                                   
+WHERE PREPARACAO_LOTE.CD_PREPARACAO_LOTE ={preparo}
+</SqlCommand><Type>Table</Type></ITENS_COMPONENTES><ETQ_SERINGA Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleSource"><Alias>ETQ_SERINGA</Alias><Columns count="24" isList="true"><value>CD_ATENDIMENTO,System.Double</value><value>CD_ITPRE_MED,System.Double</value><value>CD_ITSOLSAI_PRO,System.Double</value><value>CD_LOTE,System.String</value><value>CD_PACIENTE,System.Double</value><value>CD_PRE_MED,System.Double</value><value>CD_PRODUTO_ATENDIDO,System.Double</value><value>CD_SOLSAI_PRO,System.Double</value><value>CD_UNID_INT,System.Double</value><value>CD_UNI_PRO,System.Double</value><value>CUIDADOS_ADM,System.String</value><value>DH_VALIDADE_DROGA,System.DateTime</value><value>DOSE,System.Double</value><value>DS_FOR_APL,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_STATUS,System.String</value><value>DT_ATENDIMENTO,System.DateTime</value><value>DT_NASCIMENTO,System.String</value><value>HR_PREPARACAO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>RESPONSAVEL,System.String</value><value>TEMPO_INFUSAO,System.String</value><value>USU_PREPARACAO,System.String</value><value>VOLUME,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ETQ_SERINGA</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT   
+       ATENDIME.CD_ATENDIMENTO
+      ,ATENDIME.DT_ATENDIMENTO
+      ,PACIENTE.CD_PACIENTE
+      ,PACIENTE.NM_PACIENTE
+      ,TO_CHAR(PACIENTE.DT_NASCIMENTO, 'DD/MM/RRRR') DT_NASCIMENTO
+      ,PREPARACAO_LOTE.CD_SOLSAI_PRO
+      ,ITPRE_MED.CD_PRE_MED
+      ,(SELECT P.NM_PRESTADOR||' - '||C.DS_CONSELHO||': '||DS_CODIGO_CONSELHO 
+           FROM DBAMV.PRESTADOR P, DBAMV.CONSELHO C 
+          WHERE C.CD_CONSELHO = P.CD_CONSELHO 
+            AND P.CD_PRESTADOR = PRE_MED.CD_PRESTADOR) RESPONSAVEL
+      ,PREPARACAO_LOTE.HR_PREPARACAO 
+      ,PREPARACAO_LOTE.DS_STATUS 
+      ,PREPARACAO_LOTE.CD_ITPRE_MED       
+      ,ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+      ,ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO
+      ,PRODUTO.DS_PRODUTO
+      ,ITPRE_MED.QT_ITPRE_MED DOSE
+      ,UNI_PRO.VL_FATOR VOLUME
+      ,FOR_APL.DS_FOR_APL
+      ,ITPRE_MED.NR_DIAS||' - '||ITPRE_MED.NR_HORA||':'||ITPRE_MED.NR_MINUTO TEMPO_INFUSAO
+      ,Decode(PRODUTO.TP_CARATER,
+              'I','IRRITANTE',
+              'V','VESICANTE',
+              '', NULL)
+              CUIDADOS_ADM
+      ,PREPARACAO_LOTE.DH_VALIDADE_DROGA
+      ,PRESTADOR.NM_PRESTADOR||' - '||CONSELHO.DS_CONSELHO||': '||DS_CODIGO_CONSELHO USU_PREPARACAO
+      ,PREPARACAO_LOTE.CD_UNID_INT               
+      ,ITPREPARACAO_LOTE.CD_LOTE 
+      ,ITPREPARACAO_LOTE.CD_UNI_PRO
+ FROM DBAMV.PREPARACAO_LOTE
+ JOIN DBAMV.ITPREPARACAO_LOTE ON PREPARACAO_LOTE.CD_PREPARACAO_LOTE = ITPREPARACAO_LOTE.CD_PREPARACAO_LOTE
+  AND SN_ONCOLOGIA = 'S'
+ JOIN DBAMV.PRODUTO ON ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = PRODUTO.CD_PRODUTO
+ JOIN DBAMV.ITPRE_MED ON PREPARACAO_LOTE.CD_ITPRE_MED = ITPRE_MED.CD_ITPRE_MED
+  AND ITPRE_MED.CD_FOR_APL IN ('EVB','IM','SC','IT')
+ JOIN DBAMV.HRITPRE_MED ON PREPARACAO_LOTE.CD_ITPRE_MED = HRITPRE_MED.CD_ITPRE_MED 
+ JOIN DBAMV.PRE_MED ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED                                      
+ JOIN DBAMV.TIP_PRESC ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC                                                                           
+ JOIN DBAMV.ATENDIME ON PRE_MED.CD_ATENDIMENTO = ATENDIME.CD_ATENDIMENTO
+ JOIN DBAMV.PACIENTE ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+ JOIN DBASGU.USUARIOS ON PREPARACAO_LOTE.CD_USUARIO = USUARIOS.CD_USUARIO
+ LEFT JOIN DBAMV.ITSOLSAI_PRO ON ITPRE_MED.CD_ITPRE_MED = ITSOLSAI_PRO.CD_ITPRE_MED
+  AND ITPREPARACAO_LOTE.CD_ITSOLSAI_PRO = ITSOLSAI_PRO.CD_ITSOLSAI_PRO
+  AND ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = ITSOLSAI_PRO.CD_PRODUTO                                     
+ LEFT JOIN DBAMV.PRESTADOR ON USUARIOS.CD_PRESTADOR = PRESTADOR.CD_PRESTADOR                       
+ LEFT JOIN DBAMV.CONSELHO ON PRESTADOR.CD_CONSELHO = CONSELHO.CD_CONSELHO
+ LEFT JOIN DBAMV.UNI_PRO ON ITPREPARACAO_LOTE.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO 
+  AND ITPREPARACAO_LOTE.CD_PRODUTO_ATENDIDO = UNI_PRO.CD_PRODUTO
+  AND UNI_PRO.TP_RELATORIOS = '4'                                  
+ LEFT JOIN DBAMV.FOR_APL ON ITPRE_MED.CD_FOR_APL = FOR_APL.CD_FOR_APL
+WHERE PREPARACAO_LOTE.CD_PREPARACAO_LOTE = {preparo}</SqlCommand><Type>Table</Type></ETQ_SERINGA></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="1" isList="true"><value>,preparo,preparo,,System.Int32,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><Key>fa10ffb324ef4ce898307b0665e87866</Key><MetaTags count="1" isList="true"><value>reportId,_x0033_1</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="6" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="5" isList="true"><DataBand3 Ref="7" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,0.4,8.5,2.8</ClientRectangle><Components count="10" isList="true"><Text18 Ref="8" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.2,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>d010f69277e24b0cb19c0755b9a801d8</Guid><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="6"/><Parent isRef="7"/><Text>Nome: {ETQ_PREPARACAO.NM_PACIENTE}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text18><Text19 Ref="9" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.4,0.6,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>e32d306fc5b94bfb881a59d071007786</Guid><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="6"/><Parent isRef="7"/><Text>{ETQ_PREPARACAO.DT_NASCIMENTO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text19><Text20 Ref="10" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,0.6,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>90dc9900514a41f9926ce2ec5f9922e6</Guid><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="6"/><Parent isRef="7"/><Text>Prontuario: {ETQ_PREPARACAO.CD_PACIENTE}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text20><Text21 Ref="11" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.6,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>8cbed9f273e74cddb6d7372bdd79571b</Guid><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="6"/><Parent isRef="7"/><Text>DT. Nasc:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text21><Text22 Ref="12" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,1.8,6.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>0b08e3be2c164438ba84af2a9f7a9c06</Guid><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="6"/><Parent isRef="7"/><Text>{ETQ_PREPARACAO.DS_PRODUTO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text22><Text23 Ref="13" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,2.2,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>1a712e3dc88c46548703109a177043da</Guid><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="6"/><Parent isRef="7"/><Text>Dose: {ETQ_PREPARACAO.DOSE} MG</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text23><Text24 Ref="14" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>3.6,2.2,4.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><Guid>2d62782230f44b85a8fde1cd5565609e</Guid><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="6"/><Parent isRef="7"/><Text>Volume: {ETQ_PREPARACAO.VOLUME} ML</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text24><Text2 Ref="15" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,1.2,2.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><Guid>7ee5df37a2054f009cc0a4e7941794f7</Guid><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="6"/><Parent isRef="7"/><Text>MEDICAMENTO(S):</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text2><Text4 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>5.2,0.6,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>7ca7a7f2ee284d87885739d7c9dbb758</Guid><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="6"/><Parent isRef="7"/><Text>Atendimento: {ETQ_PREPARACAO.CD_ATENDIMENTO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text4><Text15 Ref="17" isKey="true" type="Text"><Border>Top, Left, Right, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>6.4,1.8,0.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="6"/><Parent isRef="7"/><Text>{ETQ_PREPARACAO.NR_ORDEM_IMPRESSAO}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text15></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>4f57a880046242a2b20c60f7a3a2e080</Guid><KeepDetails>None</KeepDetails><LimitRows/><Name>DataBand3</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataBand3><DataETQ_PREPARACAO Ref="18" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,4,8.5,1.8</ClientRectangle><Components count="4" isList="true"><Text5 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.8,7.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="6"/><Parent isRef="18"/><Text>{ITENS_COMPONENTES.DS_PRODUTO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text5><Text6 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,1.2,2.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="6"/><Parent isRef="18"/><Text>Dose: {ITENS_COMPONENTES.DOSE} ML</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text6><Text7 Ref="21" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>3.2,1.2,5,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="6"/><Parent isRef="18"/><Text>Volume: {ITENS_COMPONENTES.VOLUME} ML</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text7><Text1 Ref="22" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.2,2.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><Guid>bdc231142e294faea68a600a60dc5464</Guid><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="6"/><Parent isRef="18"/><Text>COMPONENTE(S):</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text1></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>ITENS_COMPONENTES</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataETQ_PREPARACAO</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataETQ_PREPARACAO><DataBand1 Ref="23" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,6.6,8.5,0.6</ClientRectangle><Components count="1" isList="true"><Text3 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7,Bold</Font><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="6"/><Parent isRef="23"/><Text>Volume final: {Sum(ETQ_PREPARACAO.VOLUME) + Sum(ITENS_COMPONENTES.VOLUME)} ML</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text3></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataBand1</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataBand1><DataBand2 Ref="25" isKey="true" type="DataBand"><Border>None;[0:0:0];1.0;Dash;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,8,8.5,3.4</ClientRectangle><Components count="8" isList="true"><Text9 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.4,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>0b60f09dcc8246589f6556b56d982fc4</Guid><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="6"/><Parent isRef="25"/><Text>Tempo de Infusão: {ETQ_PREPARACAO.TEMPO_INFUSAO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text9><Text10 Ref="27" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,2.2,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="6"/><Parent isRef="25"/><Text>Prazo validade: {ETQ_PREPARACAO.DTH_VALIDADE}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text10><Text11 Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,1.8,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="6"/><Parent isRef="25"/><Text>Hora preparo: {ETQ_PREPARACAO.HR_PREPARO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text11><Text12 Ref="29" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,2.6,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="6"/><Parent isRef="25"/><Text>Prescritor: {ETQ_PREPARACAO.RESPONSAVEL}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text12><Text13 Ref="30" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,3,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="6"/><Parent isRef="25"/><Text>Farmaceutico: {ETQ_PREPARACAO.USU_PREPARACAO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text13><Text14 Ref="31" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.8,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="6"/><Parent isRef="25"/><Text>Cuidados: {ETQ_PREPARACAO.CUIDADOS_ADM}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text14><Text8 Ref="32" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="6"/><Parent isRef="25"/><Text>Via de aplicação: {ETQ_PREPARACAO.DS_FOR_APL}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text8><Text16 Ref="33" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,1.2,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Guid>ac6d7a94e01e4b8591600d63006c99f1</Guid><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="6"/><Parent isRef="25"/><Text>Geladeira: {ETQ_PREPARACAO.SN_ACONDICIONADO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text16></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataBand2</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataBand2><DataETQ_SERINGA Ref="34" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,12.2,8.5,2.8</ClientRectangle><Components count="5" isList="true"><DataETQ_SERINGA_CD_PACIENTE Ref="35" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0.2,0.6,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>DataETQ_SERINGA_CD_PACIENTE</Name><Page isRef="6"/><Parent isRef="34"/><Text>Nome: {ETQ_SERINGA.NM_PACIENTE}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></DataETQ_SERINGA_CD_PACIENTE><DataETQ_SERINGA_DS_PRODUTO Ref="36" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0.2,1.2,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>DataETQ_SERINGA_DS_PRODUTO</Name><Page isRef="6"/><Parent isRef="34"/><Text>Medicamento: {ETQ_SERINGA.DS_PRODUTO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></DataETQ_SERINGA_DS_PRODUTO><DataETQ_SERINGA_DOSE Ref="37" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0.2,1.6,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>DataETQ_SERINGA_DOSE</Name><Page isRef="6"/><Parent isRef="34"/><Text>Dose: {ETQ_SERINGA.DOSE} MG</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></DataETQ_SERINGA_DOSE><DataETQ_SERINGA_DS_FOR_APL Ref="38" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>3.2,1.6,5,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>DataETQ_SERINGA_DS_FOR_APL</Name><Page isRef="6"/><Parent isRef="34"/><Text>Via de aplicação: {ETQ_SERINGA.DS_FOR_APL}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></DataETQ_SERINGA_DS_FOR_APL><DataETQ_SERINGA_TEMPO_INFUSAO Ref="39" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0.2,2.2,8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>DataETQ_SERINGA_TEMPO_INFUSAO</Name><Page isRef="6"/><Parent isRef="34"/><Text>Tempo de Infusão: {ETQ_SERINGA.TEMPO_INFUSAO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></DataETQ_SERINGA_TEMPO_INFUSAO></Components><Conditions count="0" isList="true"/><DataSourceName>ETQ_SERINGA</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataETQ_SERINGA</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataETQ_SERINGA></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Guid>d4b0cc42a3994296b7b38ea58f69cb8a</Guid><Margins>0,0,0,0</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Page isRef="6"/><PageHeight>15</PageHeight><PageWidth>8.5</PageWidth><Report isRef="0"/><Watermark Ref="40" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="41" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>12/06/2023 04:57:53 PM</ReportChanged><ReportCreated>11/07/2023 09:57:35 AM</ReportCreated><ReportFile>USR_ETIQ_FARMACIA_ONCOLOGIA</ReportFile><ReportGuid>a471dbd9e41740b887bd74543104adda</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2021.4.4 from 27 October 2021, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>

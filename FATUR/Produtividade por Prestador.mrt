@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbJBCcZrqezbKGgEckCov40erclLOJFN8mvtaOqY6KfexGmIRlmZGeNL7ZTHyS1z8Fj1DdZ9ou1vWt3c+j0l58XGmwvLEPqJ8WdRwGVgLRf1Gs2lXkvCjEYB0EzxQCo/3+DLSFh3+sFpKJz40+wlXv0eT6hlaPpIaigpgEsALQrkaP0NxmoJGXJMgBjxELk/xHr3DcpoS0h/YeXcc/Qh5+B4dyj/BXq822ntkHEUMl7/stWN/12jhUVN0NhOWCWT01RDoMkFMYHpZ4Tt5QS5E9yy2U7ZBUOJ4mz5Scfc5ArTVrUNWHvL7OkoTURHACo=</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="3" isList="true"><PRESTADOR Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>PRESTADOR</Alias><Columns count="2" isList="true"><value>CD_PRESTADOR,System.Int32</value><value>NM_PRESTADOR,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>PRESTADOR</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>select CD_PRESTADOR, NM_PRESTADOR from DBAMV.PRESTADOR WHERE {V_VALOR_PREST}</SqlCommand><Type>Table</Type></PRESTADOR><SETOR Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>SETOR</Alias><Columns count="2" isList="true"><value>CD_SETOR,System.Int32</value><value>NM_SETOR,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>SETOR</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>select CD_SETOR, NM_SETOR from DBAMV.SETOR</SqlCommand><Type>Table</Type></SETOR><FAT_SUS Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>FAT_SUS</Alias><Columns count="16" isList="true"><value>CD_ATENDIMENTO,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_PRESTADOR,System.Int32</value><value>CD_PROCEDIMENTO,System.String</value><value>CD_REG_FAT,System.Int32</value><value>CD_SETOR,System.Int32</value><value>DS_PROCEDIMENTO,System.String</value><value>DT_COMPETENCIA,System.DateTime</value><value>DT_FINAL,System.DateTime</value><value>DT_INICIO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>NM_PRESTADOR,System.String</value><value>NM_SETOR,System.String</value><value>NR_GUIA,System.String</value><value>QT_PONTOS,System.Int32</value><value>VLR_PROFISSIONAIS,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>FAT_SUS</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT FAT_SUS.dt_competencia
+      ,FAT_SUS.cd_prestador
+      ,prestador.nm_prestador
+      ,FAT_SUS.cd_setor
+      ,setor.nm_setor
+      ,reg_fat.nr_guia
+      ,atendime.cd_paciente
+      ,paciente.nm_paciente
+      ,FAT_SUS.cd_procedimento
+      ,procedimento_sus.ds_procedimento
+      ,reg_fat.dt_inicio
+      ,FAT_SUS.dt_final
+      ,FAT_SUS.Qt_pontos
+      ,FAT_SUS.CD_ATENDIMENTO
+      ,FAT_SUS.CD_REG_FAT
+      ,( vlr_anestesista
+        +vlr_analg_obstetrica
+        +vlr_consulta_pediatrica
+        +vlr_neonatologia
+        +vlr_perfusionista
+        +vlr_prof_uti
+        +vlr_prof_uti_especializada
+        +Vlr_Profissionais
+        )vlr_profissionais
+FROM                                                          
+ 
+(
+select reg_fat.cd_multi_empresa
+     , REG_FAT.CD_REG_FAT_GLOSA
+     , reg_fat.cd_atendimento
+     , reg_fat.cd_convenio
+     , reg_fat.cd_con_pla
+     , fatura.dt_competencia
+     , remessa_fatura.cd_remessa
+     , remessa_fatura.sn_fechada remessa_fechada
+     , reg_fat.cd_reg_fat
+     , reg_fat.sn_fechada conta_fechada
+     , reg_fat.cd_espec_sus
+     , reg_fat.dt_final
+     , Item_Res.Cd_Item_Res
+     , Item_Res.Tp_Receita
+     , nvl(itreg_fat.cd_setor, 0) cd_setor
+     , nvl(itreg_fat.cd_setor_produziu, 0) cd_setor_produziu
+     , itreg_fat.cd_prestador
+     , Decode(d.SN_Ortese_Protese,'N',itreg_fat.cd_tipo_vinculo,dbamv.fnc_ffis_define_vinculo_opm(itcob_pre.cd_fornecedor)) tp_vincu -- PDA 269072
+     , itreg_fat.cd_procedimento
+     , itreg_fat.CD_LANCAMENTO
+     , itreg_fat.dt_lancamento
+     , itreg_fat.hr_lancamento
+     , d.cd_gru_pro
+     , gru_pro.cd_gru_fat
+     , atendime.cd_tipo_internacao
+     , trunc(reg_fat.vl_ponto_prof_aih, 4) vl_ponto
+     , nvl(itreg_fat.qt_pontos,0) qt_pontos
+-- Serviços Hospitalares Inicio
+     , decode(nvl(d.sn_enfermaria         ,'N'), 'S' , nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Enfermaria
+     , decode(nvl(d.sn_permanencia_maior  ,'N'), 'S' , nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Permanencia_Maior
+     , decode(nvl(d.sn_acompanhante       ,'N'), 'S' , decode(nvl(d.tp_acompanhante,'X'),'IC',0, nvl(itreg_fat.qt_lancamento,0)), 0) Qtd_Acompanhante
+     , decode(nvl(d.tp_acompanhante       ,'X'), 'IC', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Acomp_Idoso
+     , decode(nvl(d.sn_uti_normal         ,'N'), 'S' , nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Uti_Normal
+     , decode(nvl(d.sn_uti                ,'N'), 'S' , nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Uti_Espec
+     , decode(nvl(d.sn_uci                ,'N'), 'S' , nvl(itreg_fat.qt_lancamento,0), 0) Qtd_Uci
+     , decode(nvl(d.sn_enfermaria         ,'N'), 'S' , nvl(itreg_fat.vl_sh,0), 0) Vlr_Enfermaria
+     , decode(nvl(d.sn_permanencia_maior  ,'N'), 'S' , nvl(itreg_fat.vl_sh,0), 0) Vlr_Permanencia_Maior
+     , decode(nvl(d.sn_acompanhante       ,'N'), 'S' , nvl(itreg_fat.vl_sh, 0), 0) Vlr_Acompanhante
+     , decode(nvl(d.tp_acompanhante       ,'X'), 'IC', nvl(itreg_fat.vl_sh,0), 0) Vlr_Acomp_Idoso
+     , decode(nvl(d.sn_uti_normal         ,'N'), 'S' , nvl(itreg_fat.vl_sh,0), 0) Vlr_Uti_Normal
+     , decode(nvl(d.sn_uti                ,'N'), 'S' , nvl(itreg_fat.vl_sh,0), 0) Vlr_Uti_Espec
+     , decode(nvl(d.sn_uci                ,'N'), 'S' , nvl(itreg_fat.vl_sh,0), 0) Vlr_Uci
+     , nvl(d.sn_uti_normal                ,'N') sn_uti_normal
+     , nvl(d.sn_uti                       ,'N') sn_uti
+-- Serviços Hospitalares Final
+-- Serviços Profissionais Inicio   (Emilio)
+     , 0                                                                                                Vlr_Anestesista
+     , 0                                                                                                Vlr_Analg_Obstetrica
+     , decode(nvl(d.sn_consulta_pediatrica,'N'), 'S',
+     decode(nvl(itreg_fat.vl_sp,0), 0,
+     decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Consulta_Pediatrica
+     , decode(nvl(d.sn_neonatologia       ,'N'), 'S',
+     decode(nvl(itreg_fat.vl_sp,0), 0,
+     decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Neonatologia
+     , decode(nvl(d.sn_perfusionista      ,'N'), 'S',
+     decode(nvl(itreg_fat.vl_sp,0), 0,
+     decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Perfusionista
+       --[PDA 422294]
+     --  , decode(nvl(d.sn_uti_normal         ,'N'), 'S',
+   --  decode(nvl(itreg_fat.vl_sp,0), 0,
+     --  decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Prof_Uti
+   --  decode(nvl(d.sn_aih_especial,'N'), 'S', 0, 0), itreg_fat.vl_sp), 0) Vlr_Prof_Uti
+     , decode(nvl(d.sn_uti_normal,'N'), 'S', nvl(itreg_fat.vl_sp,0), 0) Vlr_Prof_Uti
+       --[PDA 422294]
+     --, decode(nvl(d.sn_uti                ,'N'), 'S',
+   --  decode(nvl(itreg_fat.vl_sp,0), 0,
+   --  decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Prof_Uti_Especializada
+   --  decode(nvl(d.sn_aih_especial,'N'), 'S', nvl(itreg_fat.vl_sh,0), 0), itreg_fat.vl_sp), 0) Vlr_Prof_Uti_Especializada
+     , decode(nvl(d.sn_uti,'N'), 'S', nvl(itreg_fat.vl_sp,0), 0 ) Vlr_Prof_Uti_Especializada
+     , decode(nvl(d.sn_consulta_pediatrica,'N'), 'S', 0,
+       decode(nvl(d.sn_neonatologia       ,'N'), 'S', 0,
+--       decode(nvl(d.sn_notificacao_agravo ,'N'), 'B', 0,
+       decode(nvl(d.sn_perfusionista      ,'N'), 'S', 0,
+       decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0802010199' , 0, --- Permanência A Maior
+--       decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0802010199', nvl(itreg_fat.vl_sp,0),
+       decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0211020028', 0,
+      /*
+        [Início PDA 357310]
+        Em meados de 2009 o procedimento passou a montar equipe.
+        Para mantar a compatibilidade foi adicionada a consulta
+        na tabela itlan_med.
+      */
+       --decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0211020010', nvl(itreg_fat.vl_sp,0),
+       decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0211020010', decode(( select count(*) qtd
+                                                                                  from dbamv.itlan_med
+                                                                                 where itlan_med.cd_reg_fat = itreg_fat.cd_reg_fat
+                                                                                   and itlan_med.cd_lancamento = itreg_fat.cd_lancamento ), 0, nvl(itreg_fat.vl_sp,0), 0),
+       --[Fim PDA 357310]
+       decode(nvl(itreg_fat.cd_procedimento       ,'0'), '0301010072', nvl(itreg_fat.vl_sp,0),
+       --decode(nvl(d.sn_enfermaria         ,'N'), 'N', 0,
+       decode(nvl(d.sn_uti_normal         ,'N'), 'S', 0,
+       decode(nvl(d.sn_uti                ,'N'), 'S', 0,
+       decode(nvl(dbamv.FNC_FFIS_CHECA_REGRA_SUS( 'SH_ESP_NAO_ENTRA_PARA_SP', itreg_fat.cd_procedimento ),'N'), 'S', 0,
+       decode(nvl(itreg_fat.vl_sp                                ,  0),   0,
+       decode(nvl(d.sn_aih_especial       ,'N'), 'S', nvl(itreg_fat.vl_sh,0)
+                                                                           , 0)
+                                                                           ,
+       decode(itreg_fat.cd_prestador                             ,Null     ,
+       decode(nvl(d.sn_ortese_protese,'N'),'N'      , 0, nvl(itreg_fat.vl_sp,0))
+                                                                              , nvl(itreg_fat.vl_sp,0))))))))))))) Vlr_Profissionais
+      , DECODE(ITREG_FAT.CD_PRESTADOR,NULL,0
+              ,DECODE(d.SN_AIH_ESPECIAL,'S'
+                     ,DECODE(NVL(DBAMV.PACK_SUS.FNC_SUS_MAX_VALOR_SP(ITREG_FAT.CD_PROCEDIMENTO
+                                                                    ,ITREG_FAT.CD_REG_FAT),0),0,ITREG_FAT.VL_SH,0),0)) VLR_SH_PROFISSIONAL
+     , 'N'                                                                                  Prof_Anestesista
+     , 'N'                                                                                  Prof_Analg_Obstetrica
+     , nvl(d.sn_consulta_pediatrica       ,'N')                      Prof_Pediatria
+     , nvl(d.sn_neonatologia              ,'N')                      Prof_Neonatologia
+     , nvl(d.sn_perfusionista             ,'N')                      Prof_Perfusionista
+     , nvl(d.sn_uti_normal                ,'N')                      Prof_Uti_Normal
+     , nvl(d.sn_uti                       ,'N')                      Prof_Uti_Especializada
+     , decode(nvl(d.sn_consulta_pediatrica,'N'), 'S', 'N' ,
+       decode(nvl(d.sn_neonatologia       ,'N'), 'S', 'N' ,
+       decode(nvl(d.sn_perfusionista      ,'N'), 'S', 'N' ,
+       decode(nvl(d.sn_uti_normal         ,'N'), 'S', 'N' ,
+       decode(nvl(d.sn_uti                ,'N'), 'S', 'N' , 'S'))))) Prof_Profissionais
+-- Serviços Profissionais Final
+-- Procedimentos Especiais Inicio
+     , decode(nvl(d.sn_concentrado_fator_viii ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_concentrado_fator_viii
+     , decode(nvl(d.sn_fatores_x_coagulacao   ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_fatores_x_coagulacao
+     , decode(nvl(d.sn_albumina_humana        ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_albumina_humana
+     , decode(nvl(d.sn_plasma_humano          ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_plasma_humano
+     , decode(nvl(d.sn_arterior_neuro         ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_arterior_neuro
+     , decode(nvl(d.sn_litotripsia            ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_litotripsia
+     , decode(nvl(d.sn_anticorpo_anti_rh      ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_anticorpo_anti_rh
+     , decode(nvl(d.sn_exosanguineo_transfusao,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_exosanguineo_transfusao
+     , decode(nvl(d.sn_ciclosporina           ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_ciclosporina
+     , decode(nvl(d.sn_ortese_protese         ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_ortese_protese
+     , decode(nvl(d.sn_sangue                 ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_sangue
+     , decode(nvl(d.sn_tomografias            ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_tomografias
+     , decode(nvl(d.sn_sangue_taxa_aplicacao  ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_sangue_taxa_aplicacao
+     , decode(nvl(d.sn_estudos_hemodinamicos  ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_estudos_hemodinamicos
+     , decode(nvl(d.sn_imunoglobulina_g       ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_imunoglobulina_g
+     , decode(nvl(d.sn_estreptoquinase        ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_estreptoquinase
+     , decode(nvl(d.sn_criacao_fav            ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_criacao_fav
+     , decode(nvl(d.sn_anticorpo_monocloral   ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_anticorpo_monocloral
+     , decode(nvl(d.sn_globulina_antimocitaria,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_globulina_antimocitaria
+     , decode(nvl(d.sn_ciclosporina_capsula   ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_ciclosporina_capsula
+     , decode(nvl(d.sn_metilprednisilona      ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_metilprednisilona
+     , decode(nvl(d.sn_surfactante_fr_amp     ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_surfactante_fr_amp
+     , decode(nvl(d.sn_nutricao_enteral       ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_nutricao_enteral
+     , decode(nvl(d.sn_tomografias_neuro      ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_tomografias_neuro
+     , decode(nvl(d.sn_componente_i           ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_componente_i
+     , decode(nvl(d.sn_registro_civil         ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_registro_civil
+     , decode(nvl(d.sn_teste_hiv              ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_teste_hiv
+     , decode(nvl(d.sn_hemodialise_pac_renais ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hemodialise_pac_renais
+     , decode(nvl(d.sn_dialise_pac_renais     ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_dialise_pac_renais
+     , decode(nvl(d.sn_hemoperfusao           ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hemoperfusao
+     , decode(nvl(d.sn_ultrafiltracao_continua,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_ultrafiltracao_continua
+     , decode(nvl(d.sn_hemodialise_continua   ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hemodialise_continua
+     , decode(nvl(d.sn_hemofiltracao_continua ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hemofiltracao_continua
+     , decode(nvl(d.sn_hediafiltracao_continua,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hediafiltracao_continua
+     , decode(nvl(d.sn_hemofiltracao          ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_hemofiltracao
+     , decode(nvl(d.sn_concentrado_fator_viii ,'N'),'S', 0,
+       decode(nvl(d.sn_fatores_x_coagulacao   ,'N'),'S', 0,
+       decode(nvl(d.sn_albumina_humana        ,'N'),'S', 0,
+       decode(nvl(d.sn_plasma_humano          ,'N'),'S', 0,
+       decode(nvl(d.sn_arterior_neuro         ,'N'),'S', 0,
+       decode(nvl(d.sn_litotripsia            ,'N'),'S', 0,
+       decode(nvl(d.sn_anticorpo_anti_rh      ,'N'),'S', 0,
+       decode(nvl(d.sn_exosanguineo_transfusao,'N'),'S', 0,
+       decode(nvl(d.sn_ciclosporina           ,'N'),'S', 0,
+       decode(nvl(d.sn_ortese_protese         ,'N'),'S', 0,
+       decode(nvl(d.sn_sangue                 ,'N'),'S', 0,
+       decode(nvl(d.sn_tomografias            ,'N'),'S', 0,
+       decode(nvl(d.sn_sangue_taxa_aplicacao  ,'N'),'S', 0,
+       decode(nvl(d.sn_estudos_hemodinamicos  ,'N'),'S', 0,
+       decode(nvl(d.sn_imunoglobulina_g       ,'N'),'S', 0,
+       decode(nvl(d.sn_estreptoquinase        ,'N'),'S', 0,
+       decode(nvl(d.sn_criacao_fav            ,'N'),'S', 0,
+       decode(nvl(d.sn_anticorpo_monocloral   ,'N'),'S', 0,
+       decode(nvl(d.sn_globulina_antimocitaria,'N'),'S', 0,
+       decode(nvl(d.sn_ciclosporina_capsula   ,'N'),'S', 0,
+       decode(nvl(d.sn_metilprednisilona      ,'N'),'S', 0,
+       decode(nvl(d.sn_surfactante_fr_amp     ,'N'),'S', 0,
+       decode(nvl(d.sn_nutricao_enteral       ,'N'),'S', 0,
+       decode(nvl(d.sn_tomografias_neuro      ,'N'),'S', 0,
+       decode(nvl(d.sn_componente_i           ,'N'),'S', 0,
+       decode(nvl(d.sn_registro_civil         ,'N'),'S', 0,
+       decode(nvl(d.sn_teste_hiv              ,'N'),'S', 0,
+       decode(nvl(d.sn_hemodialise_pac_renais ,'N'),'S', 0,
+       decode(nvl(d.sn_dialise_pac_renais     ,'N'),'S', 0,
+       decode(nvl(d.sn_hemoperfusao           ,'N'),'S', 0,
+       decode(nvl(d.sn_ultrafiltracao_continua,'N'),'S', 0,
+       decode(nvl(d.sn_hemodialise_continua   ,'N'),'S', 0,
+       decode(nvl(d.sn_hemofiltracao_continua ,'N'),'S', 0,
+       decode(nvl(d.sn_hediafiltracao_continua,'N'),'S', 0,
+       decode(nvl(d.sn_hemofiltracao          ,'N'),'S', 0,
+       decode(nvl(d.sn_notificacao_agravo     ,'N'),'S', 0,   -- Previsao Valores Teto
+       decode(nvl(d.sn_cateterismo            ,'N'),'S', 0,   -- Previsao Valores Teto
+       decode(nvl(d.sn_enfermaria             ,'N'),'S', 0,
+       decode(nvl(d.sn_permanencia_maior      ,'N'),'S', 0,
+       decode(nvl(d.sn_acompanhante           ,'N'),'S', 0,
+       decode(nvl(d.tp_acompanhante          ,'X'),'IC', 0,
+       decode(nvl(d.sn_uti_normal             ,'N'),'S', 0,
+       decode(nvl(d.sn_uti                    ,'N'),'S', 0,
+       decode(nvl(d.sn_uci                    ,'N'),'S', 0,
+       decode(nvl(dbamv.FNC_FFIS_CHECA_REGRA_SUS( 'VALOR_SH_AGRUPAMENTO_ESPECIAIS', itreg_fat.cd_procedimento ),'N'),'S',0,
+              nvl(itreg_fat.qt_lancamento,0)))))))))))))))))))))))))))))))))))))))))))))) Qtd_Proc_Diversos
+     , decode(nvl(d.sn_concentrado_fator_viii ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_concentrado_fator_viii
+     , decode(nvl(d.sn_fatores_x_coagulacao   ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_fatores_x_coagulacao
+     , decode(nvl(d.sn_albumina_humana        ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_albumina_humana
+     , decode(nvl(d.sn_plasma_humano          ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_plasma_humano
+     , decode(nvl(d.sn_arterior_neuro         ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_arterior_neuro
+     , decode(nvl(d.sn_litotripsia            ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_litotripsia
+     , decode(nvl(d.sn_anticorpo_anti_rh      ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_anticorpo_anti_rh
+     , decode(nvl(d.sn_exosanguineo_transfusao,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_exosanguineo_transfusao
+     , decode(nvl(d.sn_ciclosporina           ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_ciclosporina
+     , decode(nvl(d.sn_ortese_protese         ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_ortese_protese
+     , decode(nvl(d.sn_sangue                 ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_sangue    -- (Emilio)
+     , decode(nvl(d.sn_tomografias            ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_tomografias
+     , decode(nvl(d.sn_sangue_taxa_aplicacao  ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_sangue_taxa_aplicacao
+     , decode(nvl(d.sn_estudos_hemodinamicos  ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_estudos_hemodinamicos
+     , decode(nvl(d.sn_imunoglobulina_g       ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_imunoglobulina_g
+     , decode(nvl(d.sn_estreptoquinase        ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_estreptoquinase
+     , decode(nvl(d.sn_criacao_fav            ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_criacao_fav
+     , decode(nvl(d.sn_anticorpo_monocloral   ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_anticorpo_monocloral
+     , decode(nvl(d.sn_globulina_antimocitaria,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_globulina_antimocitaria
+     , decode(nvl(d.sn_ciclosporina_capsula   ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_ciclosporina_capsula
+     , decode(nvl(d.sn_metilprednisilona      ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_metilprednisilona
+     , decode(nvl(d.sn_surfactante_fr_amp     ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_surfactante_fr_amp
+     , decode(nvl(d.sn_nutricao_enteral       ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_nutricao_enteral
+     , decode(nvl(d.sn_tomografias_neuro      ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_tomografias_neuro
+     , decode(nvl(d.sn_componente_i           ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_componente_i
+     , decode(nvl(d.sn_registro_civil         ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_registro_civil
+     , decode(nvl(d.sn_teste_hiv              ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_teste_hiv
+     , decode(nvl(d.sn_hemodialise_pac_renais ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hemodialise_pac_renais
+     , decode(nvl(d.sn_dialise_pac_renais     ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_dialise_pac_renais
+     , decode(nvl(d.sn_hemoperfusao           ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hemoperfusao
+     , decode(nvl(d.sn_ultrafiltracao_continua,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_ultrafiltracao_continua
+     , decode(nvl(d.sn_hemodialise_continua   ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hemodialise_continua
+     , decode(nvl(d.sn_hemofiltracao_continua ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hemofiltracao_continua
+     , decode(nvl(d.sn_hediafiltracao_continua,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hediafiltracao_continua
+     , decode(nvl(d.sn_hemofiltracao          ,'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_hemofiltracao
+     , decode(nvl(d.sn_concentrado_fator_viii ,'N'),'S', 0,
+       decode(nvl(d.sn_fatores_x_coagulacao   ,'N'),'S', 0,
+       decode(nvl(d.sn_albumina_humana        ,'N'),'S', 0,
+       decode(nvl(d.sn_plasma_humano          ,'N'),'S', 0,
+       decode(nvl(d.sn_arterior_neuro         ,'N'),'S', 0,
+       decode(nvl(d.sn_litotripsia            ,'N'),'S', 0,
+       decode(nvl(d.sn_anticorpo_anti_rh      ,'N'),'S', 0,
+       decode(nvl(d.sn_exosanguineo_transfusao,'N'),'S', 0,
+       decode(nvl(d.sn_ciclosporina           ,'N'),'S', 0,
+       decode(nvl(d.sn_ortese_protese         ,'N'),'S', 0,
+       decode(nvl(d.sn_sangue                 ,'N'),'S', 0,
+       decode(nvl(d.sn_tomografias            ,'N'),'S', 0,
+       decode(nvl(d.sn_sangue_taxa_aplicacao  ,'N'),'S', 0,
+       decode(nvl(d.sn_estudos_hemodinamicos  ,'N'),'S', 0,
+       decode(nvl(d.sn_imunoglobulina_g       ,'N'),'S', 0,
+       decode(nvl(d.sn_estreptoquinase        ,'N'),'S', 0,
+       decode(nvl(d.sn_criacao_fav            ,'N'),'S', 0,
+       decode(nvl(d.sn_anticorpo_monocloral   ,'N'),'S', 0,
+       decode(nvl(d.sn_globulina_antimocitaria,'N'),'S', 0,
+       decode(nvl(d.sn_ciclosporina_capsula   ,'N'),'S', 0,
+       decode(nvl(d.sn_metilprednisilona      ,'N'),'S', 0,
+       decode(nvl(d.sn_surfactante_fr_amp     ,'N'),'S', 0,
+       decode(nvl(d.sn_nutricao_enteral       ,'N'),'S', 0,
+       decode(nvl(d.sn_tomografias_neuro      ,'N'),'S', 0,
+       decode(nvl(d.sn_componente_i           ,'N'),'S', 0,
+       decode(nvl(d.sn_registro_civil         ,'N'),'S', 0,
+       decode(nvl(d.sn_teste_hiv              ,'N'),'S', 0,
+       decode(nvl(d.sn_hemodialise_pac_renais ,'N'),'S', 0,
+       decode(nvl(d.sn_dialise_pac_renais     ,'N'),'S', 0,
+       decode(nvl(d.sn_hemoperfusao           ,'N'),'S', 0,
+       decode(nvl(d.sn_ultrafiltracao_continua,'N'),'S', 0,
+       decode(nvl(d.sn_hemodialise_continua   ,'N'),'S', 0,
+       decode(nvl(d.sn_hemofiltracao_continua ,'N'),'S', 0,
+       decode(nvl(d.sn_hediafiltracao_continua,'N'),'S', 0,
+       decode(nvl(d.sn_hemofiltracao          ,'N'),'S', 0,
+       decode(nvl(d.sn_notificacao_agravo     ,'N'),'S', 0,   -- Previsao Valores Teto
+       decode(nvl(d.sn_cateterismo            ,'N'),'S', 0,   -- Previsao Valores Teto
+       decode(nvl(d.sn_enfermaria             ,'N'),'S', 0,
+       decode(nvl(d.sn_permanencia_maior      ,'N'),'S', 0,
+       decode(nvl(d.sn_acompanhante           ,'N'),'S', 0,
+       decode(nvl(d.tp_acompanhante          ,'X'),'IC', 0,
+       decode(nvl(d.sn_uti_normal             ,'N'),'S', 0,
+       decode(nvl(d.sn_uti                    ,'N'),'S', 0,
+       decode(nvl(d.sn_uci                    ,'N'),'S', 0,
+       decode(nvl(dbamv.FNC_FFIS_CHECA_REGRA_SUS( 'VALOR_SH_AGRUPAMENTO_ESPECIAIS', itreg_fat.cd_procedimento ),'N'),'S',0,
+              nvl(itreg_fat.vl_sh,0)))))))))))))))))))))))))))))))))))))))))))))) Vlr_Proc_Diversos
+     , nvl(d.sn_ortese_protese,'N') sn_ortese_protese
+     , nvl(d.sn_teste_hiv     ,'N') sn_teste_hiv
+-- Procedimentos Especiais Final
+-- Previsao Valores Teto Inicio
+     , decode(nvl(d.sn_notificacao_agravo  ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_notificacao_agravo
+     , decode(nvl(d.sn_cateterismo         ,'N'),'S', nvl(itreg_fat.qt_lancamento,0), 0) Qtd_cateterismo
+     , decode(nvl(dbamv.FNC_FFIS_CHECA_REGRA_SUS( 'INSTALACAO_CATETER_ACESSO_VENOSO', itreg_fat.cd_procedimento ),'N'),'S', nvl(itreg_fat.qt_lancamento,0) , 0) Qtd_Acesso_Venoso
+     , decode(nvl(d.sn_notificacao_agravo  ,'N'),'S', nvl(itreg_fat.vl_sh,0)        , 0) Vlr_notificacao_agravo
+     , decode(nvl(d.sn_cateterismo         ,'N'),'S', decode(nvl(itreg_fat.vl_sh,0),0,itreg_fat.vl_sp,nvl(itreg_fat.vl_sh,0)) , 0) Vlr_cateterismo
+     , decode(nvl(dbamv.FNC_FFIS_CHECA_REGRA_SUS( 'INSTALACAO_CATETER_ACESSO_VENOSO', itreg_fat.cd_procedimento ),'N'),'S', nvl(itreg_fat.vl_sh,0), 0) Vlr_Acesso_Venoso
+--   , decode(nvl(d.sn_paciente_renal_agudo,'N'),'S', nvl(itreg_fat.vl_sh,0)+
+--                                                                           nvl(itreg_fat.vl_sp,0), 0) Vlr_paciente_renal_agudo
+-- Previsao Valores Teto Final
+  , decode(d.sn_ortese_protese,'S','N',decode(itreg_fat.cd_prestador,null,'S','N')) sn_equipe
+  , d.sn_parto --OP 34237
+  , ITREG_FAT.SN_PERTENCE_PACOTE -- #OP:37790 // Leone Oliveira :
+  from dbamv.reg_fat
+     , dbamv.itreg_fat
+     , dbamv.itcob_pre -- PDA 269072
+     , dbamv.remessa_fatura
+     , dbamv.fatura
+     , dbamv.procedimento_detalhe_vigencia d
+     , dbamv.gru_pro
+     , dbamv.atendime
+     , dbamv.gru_fat --
+     , dbamv.item_res --
+ where reg_fat.cd_convenio              in (1,2)
+   and reg_fat.cd_reg_fat               = itreg_fat.cd_reg_fat
+   and itcob_pre.cd_reg_fat(+)          = itreg_fat.cd_reg_fat -- PDA 269072
+   and itcob_pre.cd_lancamento(+)       = itreg_fat.cd_lancamento -- PDA 269072
+   and ItReg_Fat.Cd_Gru_Fat             = Gru_Fat.Cd_Gru_Fat
+   and item_res.cd_item_res(+)          = NVL (gru_fat.cd_item_res_sh, gru_fat.cd_item_res)
+   and remessa_fatura.cd_remessa(+)     = reg_fat.cd_remessa
+   and fatura.cd_fatura(+)              = remessa_fatura.cd_fatura -- #OP:39927 // Leone Oliveira
+   and atendime.cd_atendimento          = reg_fat.cd_atendimento
+   and gru_pro.cd_gru_pro               = d.cd_gru_pro
+   and itreg_fat.cd_procedimento        = d.cd_procedimento
+   and trunc(itreg_fat.dt_lancamento, 'MONTH') between d.dt_validade_inicial and nvl(d.dt_validade_final, trunc(itreg_fat.dt_lancamento, 'MONTH'))
+   and fatura.cd_convenio(+)            in (1,2) -- #OP:39927 // Leone Oliveira
+   and fatura.cd_multi_empresa          = 1 -- #OP:45780 // LPDO
+   AND itreg_fat.sn_pertence_pacote     = 'N'
+   AND FATURA.DT_COMPETENCIA = to_date('{V_COMPETENCIA}','MM/YYYY') 
+--   and (itreg_fat.cd_prestador is not null or                       -- Sem equipe
+--        nvl(d.sn_ortese_protese,'N') = 'S')  -- ou Ortese e protese
+ union all
+-- Contas com equipe medica
+select reg_fat.cd_multi_empresa
+     , REG_FAT.CD_REG_FAT_GLOSA
+     , reg_fat.cd_atendimento
+     , reg_fat.cd_convenio
+     , reg_fat.cd_con_pla
+     , fatura.dt_competencia
+     , remessa_fatura.cd_remessa
+     , remessa_fatura.sn_fechada remessa_fechada
+     , reg_fat.cd_reg_fat
+     , reg_fat.sn_fechada conta_fechada
+     , reg_fat.cd_espec_sus
+     , reg_fat.dt_final
+     , Item_Res.Cd_Item_Res
+     , Item_Res.Tp_Receita
+     , nvl(itreg_fat.cd_setor, 0) cd_setor
+     , nvl(itreg_fat.cd_setor_produziu, 0) cd_setor_produziu
+     , itlan_med.cd_prestador
+     , itlan_med.cd_tipo_vinculo tp_vincu
+     , itreg_fat.cd_procedimento
+     , itreg_fat.CD_LANCAMENTO
+     , itreg_fat.dt_lancamento
+     , itreg_fat.hr_lancamento
+     , d.cd_gru_pro
+     , gru_pro.cd_gru_fat
+     , atendime.cd_tipo_internacao
+     , trunc(reg_fat.vl_ponto_prof_aih, 4) vl_ponto
+     , nvl(itlan_med.qt_pontos,0) qt_pontos
+-- Serviços Hospitalares Inicio
+     , 0 Qtd_Enfermaria
+     , 0 Qtd_Permanencia_Maior
+     , 0 Qtd_Acompanhante
+     , 0 Qtd_Acomp_Idoso
+     , 0 Qtd_Uti_Normal
+     , 0 Qtd_Uti_Espec
+     , 0 Qtd_Uci
+     , 0 Vlr_Enfermaria
+     , 0 Vlr_Permanencia_Maior
+     , 0 Vlr_Acompanhante
+     , 0 Vlr_Acomp_Idoso
+     , 0 Vlr_Uti_Normal
+     , 0 Vlr_Uti_Espec
+     , 0 Vlr_Uci
+     , nvl(d.sn_uti_normal, 'N') sn_uti_normal
+     , nvl(d.sn_uti       , 'N') sn_uti
+-- Serviços Hospitalares Final
+-- Serviços Profissionais Inicio
+     , decode(nvl(itlan_med.cd_ati_med,'XX'), '06', itlan_med.vl_ato, 0) Vlr_Anestesista
+     , 0 Vlr_Analg_Obstetrica
+     , 0 Vlr_Consulta_Pediatrica
+     , 0 Vlr_Neonatologia
+     , 0 Vlr_Perfusionista
+     , 0 Vlr_Prof_Uti
+     , 0 Vlr_Prof_Uti_Especializada
+     , decode(nvl(itlan_med.cd_ati_med,'XX'), '06', 0, itlan_med.vl_ato) Vlr_Profissionais
+     , 0 VLR_SH_PROFISSIONAL
+     , decode(nvl(itlan_med.cd_ati_med,'XX'), '06', 'S', 'N')            Prof_Anestesista
+     , 'N' Prof_Analg_Obstetrica
+     , 'N' Prof_Pediatria
+     , 'N' Prof_Neonatologia
+     , 'N' Prof_Perfusionista
+     , 'N' Prof_Uti_Normal
+     , 'N' Prof_Uti_Especializada
+     , decode(nvl(itlan_med.cd_ati_med,'XX'), '06', 'N', 'S')            Prof_Profissionais
+-- Serviços Profissionais Final
+-- Procedimentos Especiais Inicio
+     , 0 Qtd_concentrado_fator_viii
+     , 0 Qtd_fatores_x_coagulacao
+     , 0 Qtd_albumina_humana
+     , 0 Qtd_plasma_humano
+     , 0 Qtd_arterior_neuro
+     , 0 Qtd_litotripsia
+     , 0 Qtd_anticorpo_anti_rh
+     , 0 Qtd_exosanguineo_transfusao
+     , 0 Qtd_ciclosporina
+     , 0 Qtd_ortese_protese
+     , 0 Qtd_sangue
+     , 0 Qtd_tomografias
+     , 0 Qtd_sangue_taxa_aplicacao
+     , 0 Qtd_estudos_hemodinamicos
+     , 0 Qtd_imunoglobulina_g
+     , 0 Qtd_estreptoquinase
+     , 0 Qtd_criacao_fav
+     , 0 Qtd_anticorpo_monocloral
+     , 0 Qtd_globulina_antimocitaria
+     , 0 Qtd_ciclosporina_capsula
+     , 0 Qtd_metilprednisilona
+     , 0 Qtd_surfactante_fr_amp
+     , 0 Qtd_nutricao_enteral
+     , 0 Qtd_tomografias_neuro
+     , 0 Qtd_componente_i
+     , 0 Qtd_registro_civil
+     , 0 Qtd_teste_hiv
+     , 0 Qtd_hemodialise_pac_renais
+     , 0 Qtd_dialise_pac_renais
+     , 0 Qtd_hemoperfusao
+     , 0 Qtd_ultrafiltracao_continua
+     , 0 Qtd_hemodialise_continua
+     , 0 Qtd_hemofiltracao_continua
+     , 0 Qtd_hediafiltracao_continua
+     , 0 Qtd_hemofiltracao
+     , 0 Qtd_Proc_Diversos
+     , 0 Vlr_concentrado_fator_viii
+     , 0 Vlr_fatores_x_coagulacao
+     , 0 Vlr_albumina_humana
+     , 0 Vlr_plasma_humano
+     , 0 Vlr_arterior_neuro
+     , 0 Vlr_litotripsia
+     , 0 Vlr_anticorpo_anti_rh
+     , 0 Vlr_exosanguineo_transfusao
+     , 0 Vlr_ciclosporina
+     , 0 Vlr_ortese_protese
+     , 0 Vlr_sangue
+     , 0 Vlr_tomografias
+     , 0 Vlr_sangue_taxa_aplicacao
+     , 0 Vlr_estudos_hemodinamicos
+     , 0 Vlr_imunoglobulina_g
+     , 0 Vlr_estreptoquinase
+     , 0 Vlr_criacao_fav
+     , 0 Vlr_anticorpo_monocloral
+     , 0 Vlr_globulina_antimocitaria
+     , 0 Vlr_ciclosporina_capsula
+     , 0 Vlr_metilprednisilona
+     , 0 Vlr_surfactante_fr_amp
+     , 0 Vlr_nutricao_enteral
+     , 0 Vlr_tomografias_neuro
+     , 0 Vlr_componente_i
+     , 0 Vlr_registro_civil
+     , 0 Vlr_teste_hiv
+     , 0 Vlr_hemodialise_pac_renais
+     , 0 Vlr_dialise_pac_renais
+     , 0 Vlr_hemoperfusao
+     , 0 Vlr_ultrafiltracao_continua
+     , 0 Vlr_hemodialise_continua
+     , 0 Vlr_hemofiltracao_continua
+     , 0 Vlr_hediafiltracao_continua
+     , 0 Vlr_hemofiltracao
+     , 0 Vlr_Proc_Diversos
+     , nvl(d.sn_ortese_protese,'N') sn_ortese_protese
+     , nvl(d.sn_teste_hiv     ,'N') sn_teste_hiv
+-- Procedimentos Especiais Final
+-- Previsao Valores Teto Inicio
+     -- &lt;&lt; Falta Definicao Transplante  &gt;&gt;
+     , 0 Qtd_notificacao_agravo
+     , 0 Qtd_cateterismo
+     , 0 Qtd_Acesso_Venoso
+     , 0 Vlr_notificacao_agravo
+     , 0 Vlr_cateterismo
+     , 0 Vlr_Acesso_Venoso
+--   , 0 Vlr_paciente_renal_agudo
+-- Previsao Valores Teto Final
+  , decode(d.sn_ortese_protese,'S','N',decode(itreg_fat.cd_prestador,null,'S','N')) sn_equipe
+  , d.sn_parto --OP 34237
+  , ITREG_FAT.SN_PERTENCE_PACOTE -- #OP:37790 // Leone Oliveira :
+  from dbamv.reg_fat
+     , dbamv.itreg_fat
+     , dbamv.itlan_med
+     , dbamv.remessa_fatura
+     , dbamv.fatura
+     , dbamv.procedimento_detalhe_vigencia d
+     , dbamv.gru_pro
+     , dbamv.atendime
+     , dbamv.gru_fat --
+     , dbamv.item_res --
+ where reg_fat.cd_convenio              IN (1,2) --
+   and reg_fat.cd_reg_fat               = itreg_fat.cd_reg_fat
+   and ItReg_Fat.Cd_Gru_Fat             = Gru_Fat.Cd_Gru_Fat --
+   and item_res.cd_item_res(+)          = NVL (gru_fat.cd_item_res_sh, gru_fat.cd_item_res) --
+   and remessa_fatura.cd_remessa(+)     = reg_fat.cd_remessa
+   and fatura.cd_fatura(+)              = remessa_fatura.cd_fatura -- #OP:39927 // Leone Oliveira
+   and gru_pro.cd_gru_pro               = d.cd_gru_pro
+   and atendime.cd_atendimento          = reg_fat.cd_atendimento
+   and itreg_fat.cd_procedimento        = d.cd_procedimento
+   and trunc(itreg_fat.dt_lancamento, 'MONTH') between d.dt_validade_inicial and nvl(d.dt_validade_final, trunc(itreg_fat.dt_lancamento, 'MONTH'))
+   and itreg_fat.cd_reg_fat             = itlan_med.cd_reg_fat
+   and itreg_fat.cd_lancamento          = itlan_med.cd_lancamento
+   and fatura.cd_convenio(+)            IN( 1,2) -- #OP:39927 // Leone Oliveira
+   and fatura.cd_multi_empresa          = 1
+   AND itreg_fat.sn_pertence_pacote     = 'N'
+   AND fatura.dt_competencia = to_date('{V_COMPETENCIA}','MM/YYYY')  
+   ) fat_sus
+   JOIN dbamv.ATENDIME
+     ON FAT_SUS.CD_ATENDIMENTO = ATENDIME.CD_ATENDIMENTO
+   JOIN DBAMV.PACIENTE
+     ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+   LEFT JOIN DBAMV.PROCEDIMENTO_SUS 
+     ON FAT_SUS.CD_PROCEDIMENTO = PROCEDIMENTO_SUS.CD_PROCEDIMENTO
+   LEFT JOIN DBAMV.PRESTADOR 
+     ON FAT_SUS.CD_PRESTADOR = PRESTADOR.CD_PRESTADOR 
+   LEFT JOIN DBAMV.SETOR
+     ON FAT_SUS.CD_SETOR = SETOR.CD_SETOR
+   LEFT JOIN DBAMV.REG_FAT
+     ON FAT_SUS.CD_REG_FAT = REG_FAT.CD_REG_FAT
+    AND fat_sus.cd_atendimento = reg_fat.cd_atendimento 
+WHERE  SETOR.CD_SETOR IN ({V_LISTA_SETOR_AUX})
+  AND     (  FAT_SUS.CD_PRESTADOR = {V_LISTA_PRESTADOR}
+          OR {V_LISTA_PRESTADOR} IS NULL 
+          OR {V_LISTA_PRESTADOR} = 0
+          )
+  AND FAT_SUS.CD_PRESTADOR IS NOT NULL 
+  and tp_vincu In (1, 2)
+   
+
+ORDER BY 1,3,5
+                                                                                            
+
+                                                              
+                                                              </SqlCommand><Type>Table</Type></FAT_SUS></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="5" isList="true"><value>,V_VALOR_PREST,FULL_x0020_ACCESS,,System.String,_x0031__x003d_1,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_LISTA_PRESTADOR,Prestadores_x003a_,,System.Int32,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_PRESTADOR_x002e_CD_PRESTADOR_x003c__x002f_KeysColumn_x003e__x003c_SortDirection_x003e_Asc_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_PRESTADOR_x002e_NM_PRESTADOR_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,Nothing</value><value>,V_LISTA_SETOR,Setores_x003a_,,Stimulsoft.Report.IntList,,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_SETOR_x002e_CD_SETOR_x003c__x002f_KeysColumn_x003e__x003c_SortDirection_x003e_Asc_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_SETOR_x002e_NM_SETOR_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_LISTA_SETOR_AUX,V_LISTA_SETOR_AUX,,System.String,V_LISTA_SETOR_x002e_Count_x0028__x0029__x0020__x003d__x003d__x0020_0_x0020__x003f__x0020__x0022__x0027__x0027__x0022__x0020__x003a__x0020_V_LISTA_SETOR_x002e_ToQueryString_x0028__x0022__x0022__x0029_,True,True,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_COMPETENCIA,Competencia_x003a_,,System.String,,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><Key>98406bec4fb24c50915d461133e4f9ac</Key><MetaTags count="1" isList="true"><value>reportId,_x0032_74</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="6" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="3" isList="true"><ReportTitleBand1 Ref="7" isKey="true" type="ReportTitleBand"><Brush>Transparent</Brush><ClientRectangle>0,0.4,28.7,0.4</ClientRectangle><Components count="14" isList="true"><Text15 Ref="8" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>52a296b98d35453d95ab68bb1ab8b01b</Guid><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="6"/><Parent isRef="7"/><Text>COMPETENCIA</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text15><Text16 Ref="9" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.2,0,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>caa4191b8f5f485187db9c3152e044b3</Guid><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="6"/><Parent isRef="7"/><Text>CD_PRESTADOR</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text16><Text17 Ref="10" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2,0,3.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>c783ae10e8d144468f1a36045d90f637</Guid><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="6"/><Parent isRef="7"/><Text>NM_PRESTADOR</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text17><Text18 Ref="11" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>5.4,0,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>8b5f79d19d5a4aa88378d1fa045fac98</Guid><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="6"/><Parent isRef="7"/><Text>CD_SETOR</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text18><Text19 Ref="12" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>6.2,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>939e3e5acf44491fa2c8bf612edff16b</Guid><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="6"/><Parent isRef="7"/><Text>NM_SETOR</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text19><Text20 Ref="13" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>8.4,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>fbade85325754eb4b9986e4d61734eaa</Guid><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="6"/><Parent isRef="7"/><Text>NR_GUIA_AIH</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text20><Text21 Ref="14" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,0,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>4d92007b69b04db887df731ec3033842</Guid><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="6"/><Parent isRef="7"/><Text>CD_PACIENTE</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text21><Text22 Ref="15" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>12,0,4.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>913038c466f04304abf1346d57beab81</Guid><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="6"/><Parent isRef="7"/><Text>NM_PACIENTE</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text22><Text23 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.2,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>3b2bb40fcb4d460fa3521da359c36ea1</Guid><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="6"/><Parent isRef="7"/><Text>CD_PROCEDIMENTO</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text23><Text24 Ref="17" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18,0,4.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>0f6a967daa774b29a8f37b5e999346b7</Guid><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="6"/><Parent isRef="7"/><Text>DS_PROCEDIMENTO</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text24><Text25 Ref="18" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>22.4,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>16c0b8e67351449bbe7ca97fefc8d1fa</Guid><Margins>0,0,0,0</Margins><Name>Text25</Name><Page isRef="6"/><Parent isRef="7"/><Text>DT_INICIO</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text25><Text26 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>24,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>ffed074399174feb80ea9de84d7b6f38</Guid><Margins>0,0,0,0</Margins><Name>Text26</Name><Page isRef="6"/><Parent isRef="7"/><Text>DT_FINAL</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text26><Text27 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>25.6,0,1,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>679ddbda2a0f4927bca68c35390e48a2</Guid><Margins>0,0,0,0</Margins><Name>Text27</Name><Page isRef="6"/><Parent isRef="7"/><Text>QT_PONTOS</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text27><Text28 Ref="21" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>26.6,0,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Guid>e6d1363492004d0e89bd9f59f3f7e350</Guid><Margins>0,0,0,0</Margins><Name>Text28</Name><Page isRef="6"/><Parent isRef="7"/><Text>VLR_PROFISSIONAIS</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text28></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>ReportTitleBand1</Name><Page isRef="6"/><Parent isRef="6"/></ReportTitleBand1><DataFAT_SUS Ref="22" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,1.6,28.7,0.4</ClientRectangle><Components count="14" isList="true"><Text1 Ref="23" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="6"/><Parent isRef="22"/><Text>{V_COMPETENCIA}</Text><TextBrush>Black</TextBrush></Text1><Text2 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.2,0,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.CD_PRESTADOR}</Text><TextBrush>Black</TextBrush></Text2><Text3 Ref="25" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2,0,3.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.NM_PRESTADOR}</Text><TextBrush>Black</TextBrush></Text3><Text4 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>5.4,0,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.CD_SETOR}</Text><TextBrush>Black</TextBrush></Text4><Text5 Ref="27" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>6.2,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.NM_SETOR}</Text><TextBrush>Black</TextBrush></Text5><Text6 Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>8.4,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.NR_GUIA}</Text><TextBrush>Black</TextBrush></Text6><Text7 Ref="29" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,0,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.CD_PACIENTE}</Text><TextBrush>Black</TextBrush></Text7><Text8 Ref="30" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>12,0,4.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.NM_PACIENTE}</Text><TextBrush>Black</TextBrush></Text8><Text9 Ref="31" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.2,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.CD_PROCEDIMENTO}</Text><TextBrush>Black</TextBrush></Text9><Text10 Ref="32" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18,0,4.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.DS_PROCEDIMENTO}</Text><TextBrush>Black</TextBrush></Text10><Text11 Ref="33" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>22.4,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.DT_INICIO}</Text><TextBrush>Black</TextBrush></Text11><Text12 Ref="34" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>24,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.DT_FINAL}</Text><TextBrush>Black</TextBrush></Text12><Text13 Ref="35" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>25.6,0,1,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.QT_PONTOS}</Text><TextBrush>Black</TextBrush></Text13><Text14 Ref="36" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>26.6,0,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="6"/><Parent isRef="22"/><Text>{FAT_SUS.VLR_PROFISSIONAIS}</Text><TextBrush>Black</TextBrush></Text14></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>FAT_SUS</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataFAT_SUS</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataFAT_SUS><ReportSummaryBand1 Ref="37" isKey="true" type="ReportSummaryBand"><Brush>Transparent</Brush><ClientRectangle>0,2.8,28.7,0.4</ClientRectangle><Components count="1" isList="true"><Text29 Ref="38" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>27,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text29</Name><Page isRef="6"/><Parent isRef="37"/><Text>{Sum(FAT_SUS.VLR_PROFISSIONAIS)}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text29></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>ReportSummaryBand1</Name><Page isRef="6"/><Parent isRef="6"/></ReportSummaryBand1></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Guid>97d2df5565614f158d69cc2818669f2e</Guid><Margins>0.5,0.5,0.5,0.5</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Orientation>Landscape</Orientation><Page isRef="6"/><PageHeight>21</PageHeight><PageWidth>29.7</PageWidth><Report isRef="0"/><Watermark Ref="39" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="40" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>11/11/2022 11:59:50 AM</ReportChanged><ReportCreated>11/11/2022 10:22:40 AM</ReportCreated><ReportFile>Produtividade por Prestador</ReportFile><ReportGuid>fee6fd70b49744d98540b5750f2d2d0e</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2021.3.7 from 05 August 2021, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>

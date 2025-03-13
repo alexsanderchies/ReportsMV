@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbJ9K+gWw/nbKGgER0Coj9rYu2jfTsO88GHlkeqIuR+YbE8v6ANhAcIGsZR6yTRj3HBPQ1h5Q91vKOGA+Vgyl4Vgt8tia9jBaXztmOIYJS+CxJWlXlbY7GJm3dzTXG2qh8QToGVro8XAHtG9cYAlp7DY9yhOT8Pt4hl5kdNc9arayE8Da3QxgWBMIfxxXLkTsAyV685Voux8FaHASwFqc9N0aYDiDfuAz0TVWNN8YXbV0Pdg3QV6oHsBXfD7ySVz4Ni7bMR38k3PW6Dp0z2kL8Y4QylIVzHd72ClXGTcdLvReoEJaw5anWlLoADq9GGT0lLL69V32P3gd22Y6ESiO7CylcnrV8Kg/BX93E1xoC+C</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="4" isList="true"><ITENS_ANALITICOS Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>ITENS_ANALITICOS</Alias><Columns count="19" isList="true"><value>CD_ATENDIME,System.Int32</value><value>CD_CONVENIO,System.Int32</value><value>CD_CON_PLA,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_PRESCRICAO,System.Int32</value><value>COD_PROD,System.Int32</value><value>DESC_PRESC,System.String</value><value>DESC_UNID,System.String</value><value>DS_CON_PLA,System.String</value><value>DT_ALTA,System.DateTime</value><value>DT_ATENDIMENTO,System.DateTime</value><value>DT_PRESC,System.DateTime</value><value>NM_CONVENIO,System.String</value><value>NM_PACIENTE,System.String</value><value>QTDE_ATEND,System.Double</value><value>QTDE_CHECADA,System.Double</value><value>QTDE_DEVO,System.Double</value><value>QTDE_PRESC,System.Double</value><value>QTDE_SOLICIT,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ITENS_ANALITICOS</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       ITENS.CD_ATENDIME,
+       ATENDIME.DT_ATENDIMENTO,
+       ATENDIME.DT_ALTA,
+       ATENDIME.CD_CONVENIO,
+       CONVENIO.NM_CONVENIO,
+       ATENDIME.CD_CON_PLA, 
+       CON_PLA.DS_CON_PLA,
+       PACIENTE.CD_PACIENTE,
+       PACIENTE.NM_PACIENTE,
+       ITENS.CD_PRESCRICAO,
+       ITENS.DT_PRESC,
+       ITENS.COD_PROD,
+       ITENS.DESC_PRESC,
+       ITENS.DESC_UNID,
+       ITENS.QTDE_PRESC,
+       ITENS.QTDE_SOLICIT,
+       ITENS.QTDE_ATEND,
+       ITENS.QTDE_CHECADA,
+       ITENS.QTDE_DEVO 
+  FROM (
+SELECT 
+       Nvl(ITENS_PRESC.CD_ATENDIMENTO,  ITENS_SAIDEV_CHECK.CD_ATEND) CD_ATENDIME,
+       Nvl(ITENS_PRESC.CD_PRE_MED,      ITENS_SAIDEV_CHECK.COD_PRE_MED) CD_PRESCRICAO,
+       Nvl(ITENS_SAIDEV_CHECK.DT_PRE_MED_SAIDEV,ITENS_PRESC.DT_PRE_MED) DT_PRESC,
+       Nvl(ITENS_PRESC.CD_PRODUTO,      ITENS_SAIDEV_CHECK.COD_PRODUTO) COD_PROD,
+       Nvl(ITENS_PRESC.DS_TIP_PRESC,    Nvl(ITENS_SAIDEV_CHECK.DS_PRODUTO_SAIDEV,ITENS_SAIDEV_CHECK.DS_TIP_PRESC_CHECK)) DESC_PRESC,
+       Nvl(ITENS_PRESC.CD_UNIDADE,      Nvl(DESC_UNID_SAIDEV,DESC_UNID_CHECK)) DESC_UNID,
+       ITENS_PRESC.QT_ITPRE_MED QTDE_PRESC,
+       ITENS_SAIDEV_CHECK.QTDE_SOLICIT,
+       ITENS_SAIDEV_CHECK.QTDE_ATEND,
+       ITENS_SAIDEV_CHECK.QTDE_CHECADA,
+       ITENS_SAIDEV_CHECK.QTDE_DEVO
+  FROM (
+        
+        SELECT PRE_MED.CD_ATENDIMENTO,
+               PRE_MED.CD_PRE_MED,
+               PRE_MED.DT_PRE_MED,
+               ITPRE_MED.CD_ITPRE_MED,
+               ITPRE_MED.CD_TIP_ESQ,
+               ITPRE_MED.CD_PRODUTO,
+               TIP_PRESC.DS_TIP_PRESC,
+               UNI_PRO.CD_UNIDADE,
+               QT_ITPRE_MED
+          FROM DBAMV.ITPRE_MED
+          JOIN DBAMV.PRE_MED
+            ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED
+          JOIN DBAMV.TIP_PRESC
+            ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC
+          JOIN DBAMV.UNI_PRO
+            ON ITPRE_MED.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+         WHERE PRE_MED.FL_IMPRESSO = 'S'
+           AND PRE_MED.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+           AND ITPRE_MED.DH_CANCELADO IS NULL
+           AND ITPRE_MED.TP_SITUACAO = 'N'
+           AND ITPRE_MED.SN_HORARIO_GERADO = 'S'
+           AND ITPRE_MED.CD_TIP_ESQ IN ('DIE','GAS','HEM','DET','DEP','SOR','MDN','MDA',
+                                        'MDO','MDU','MMD','FIS','DRO','SED','DTA','MNP','INF')
+       ) ITENS_PRESC
+  FULL JOIN 
+       (            
+        SELECT Nvl(CD_ATEND_SAIDEV,   CD_ATEND_CHECK)   CD_ATEND,
+               Nvl(CD_PRE_MED_SAIDEV, CD_PRE_MED_CHECK) COD_PRE_MED,
+               DT_PRE_MED_SAIDEV,
+               Nvl(CD_PRODUTO_SAIDEV, CD_PRODUTO_CHECK) COD_PRODUTO,
+               DS_PRODUTO_SAIDEV,
+               DS_TIP_PRESC_CHECK,
+               DESC_UNID_SAIDEV,
+               DESC_UNID_CHECK,
+               QTDE_SOLICIT,
+               QTDE_ATEND,
+               QTDE_CHECADA,
+               QTDE_DEVO
+          FROM (
+                SELECT CD_ATEND_SAIDEV,
+                       CD_PRE_MED_SAIDEV,
+                       DT_PRE_MED_SAIDEV,  
+                       CD_PRODUTO_SAIDEV, 
+                       DS_PRODUTO_SAIDEV,
+                       DESC_UNID_SAIDEV, 
+                       Sum(QT_SOLICITADO)   QTDE_SOLICIT,
+                       Sum(QT_ATENDIDA)     QTDE_ATEND,
+                       Sum(QTDE_DEVOLVIDA)  QTDE_DEVO
+                  FROM (
+                        SELECT Nvl(SAI.CD_ATENDIMENTO,DEV.CD_ATENDIMENTO) CD_ATEND_SAIDEV,
+                               Nvl(CD_PRE_MED_SAI,CD_PRE_MED_DEV) CD_PRE_MED_SAIDEV,
+                               SAI.DT_PRE_MED_SAI                 DT_PRE_MED_SAIDEV, 
+                               Nvl(CD_ITPRE_MED_SAI,CD_ITPRE_MED_DEV) CD_ITPRE_MED_SAIDEV,
+--                               SAI.CD_SOLSAI_PRO_SAI,
+--                               DEV.CD_SOLSAI_PRO_DEV,  
+--                               SAI.CD_ITSOLSAI_PRO_SAI,
+--                               DEV.CD_ITSOLSAI_PRO_DEV,  
+                               Nvl(CD_PRODUTO_SAI,CD_PRODUTO_DEV) CD_PRODUTO_SAIDEV,  
+                               Nvl(DS_PRODUTO_SAI,DS_PRODUTO_DEV) DS_PRODUTO_SAIDEV,
+                               Nvl(CD_UNIDADE_SAI,CD_UNIDADE_DEV) DESC_UNID_SAIDEV,
+                               SAI.CD_LOTE_SAI,
+                               DEV.CD_LOTE_DEV, 
+                               QT_SOLICITADO,
+                               QT_ATENDIDA,
+                               QTDE_DEVOLVIDA
+                          FROM (            
+                                SELECT MVTO_ESTOQUE.CD_ATENDIMENTO,
+                                       MVTO_ESTOQUE.CD_PRE_MED         CD_PRE_MED_DEV,
+                                       ITMVTO_ESTOQUE.CD_ITPRE_MED     CD_ITPRE_MED_DEV,
+                                       MVTO_ESTOQUE.CD_MVTO_ESTOQUE    CD_MVTO_ESTOQUE_DEV,
+                                       MVTO_ESTOQUE.DT_MVTO_ESTOQUE    DT_MVTO_ESTOQUE_DEV,        
+                                       MVTO_ESTOQUE.CD_SOLSAI_PRO      CD_SOLSAI_PRO_DEV,
+                                       ITMVTO_ESTOQUE.CD_ITSOLSAI_PRO  CD_ITSOLSAI_PRO_DEV,
+                                       ITMVTO_ESTOQUE.CD_PRODUTO       CD_PRODUTO_DEV,
+                                       PRODUTO.DS_PRODUTO              DS_PRODUTO_DEV,
+                                       ITMVTO_ESTOQUE.CD_UNI_PRO       CD_UNI_PRO_DEV,
+                                       UNI_PRO.CD_UNIDADE              CD_UNIDADE_DEV,
+                                       ITMVTO_ESTOQUE.CD_LOTE          CD_LOTE_DEV,
+                                       ITMVTO_ESTOQUE.QT_MOVIMENTACAO  QTDE_DEVOLVIDA                                     
+                                  FROM DBAMV.MVTO_ESTOQUE
+                                  JOIN DBAMV.ITMVTO_ESTOQUE
+                                    ON MVTO_ESTOQUE.CD_MVTO_ESTOQUE = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+                                  JOIN DBAMV.PRODUTO
+                                    ON ITMVTO_ESTOQUE.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                                  JOIN DBAMV.UNI_PRO
+                                    ON ITMVTO_ESTOQUE.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                                 WHERE MVTO_ESTOQUE.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                                   AND TP_MVTO_ESTOQUE = 'C'
+                               ) DEV
+                          FULL JOIN                                       
+                               (
+                                SELECT SOLSAI_PRO.CD_ATENDIMENTO,
+                                       SOLSAI_PRO.CD_PRE_MED          CD_PRE_MED_SAI,
+                                       PRE_MED.DT_PRE_MED             DT_PRE_MED_SAI,        
+                                       ITSOLSAI_PRO.CD_ITPRE_MED      CD_ITPRE_MED_SAI,
+                                       SOLSAI_PRO.CD_SOLSAI_PRO       CD_SOLSAI_PRO_SAI,
+                                       ITSOLSAI_PRO.CD_ITSOLSAI_PRO   CD_ITSOLSAI_PRO_SAI,
+                                       ITSOLSAI_PRO.CD_PRODUTO        CD_PRODUTO_SAI,
+                                       ITSOLSAI_PRO.CD_UNI_PRO        CD_UNI_PRO_SAI,
+                                       UNI_PRO.CD_UNIDADE             CD_UNIDADE_SAI,
+                                       ITMVTO_ESTOQUE.CD_LOTE         CD_LOTE_SAI,
+                                       PRODUTO.DS_PRODUTO             DS_PRODUTO_SAI,
+                                       ITSOLSAI_PRO.QT_SOLICITADO,
+                                       ITSOLSAI_PRO.QT_ATENDIDA
+                                  FROM DBAMV.SOLSAI_PRO
+                                  JOIN DBAMV.ITSOLSAI_PRO
+                                    ON SOLSAI_PRO.CD_SOLSAI_PRO = ITSOLSAI_PRO.CD_SOLSAI_PRO
+                                  JOIN DBAMV.PRODUTO                                  
+                                    ON ITSOLSAI_PRO.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                                  JOIN DBAMV.UNI_PRO
+                                    ON ITSOLSAI_PRO.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                                  LEFT JOIN DBAMV.ITMVTO_ESTOQUE
+                                    ON ITSOLSAI_PRO.CD_ITSOLSAI_PRO = ITMVTO_ESTOQUE.CD_ITSOLSAI_PRO
+                                  LEFT JOIN DBAMV.PRE_MED
+                                    ON SOLSAI_PRO.CD_PRE_MED = PRE_MED.CD_PRE_MED              
+                                   AND PRE_MED.FL_IMPRESSO = 'S'
+                                 WHERE SOLSAI_PRO.TP_SOLSAI_PRO IN ('P')
+                                   AND SOLSAI_PRO.TP_SITUACAO IN ('C', 'S')
+                                   AND SOLSAI_PRO.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                               ) SAI
+                            ON DEV.CD_ATENDIMENTO = SAI.CD_ATENDIMENTO
+                           AND DEV.CD_PRODUTO_DEV = SAI.CD_PRODUTO_SAI
+                           AND DEV.CD_LOTE_DEV = SAI.CD_LOTE_SAI
+                           AND DEV.CD_UNI_PRO_DEV = SAI.CD_UNI_PRO_SAI
+                       ) GROUP BY CD_ATEND_SAIDEV,CD_PRE_MED_SAIDEV,DT_PRE_MED_SAIDEV,
+                                  CD_PRODUTO_SAIDEV,DS_PRODUTO_SAIDEV,DESC_UNID_SAIDEV
+               )ITENS_SAIDEV
+          FULL JOIN 
+               (
+                SELECT CD_ATENDIMENTO CD_ATEND_CHECK,
+                       CD_PRE_MED CD_PRE_MED_CHECK,
+                       Trunc(DH_MEDICACAO) DT_MED_CHEK,
+                       CD_PRODUTO CD_PRODUTO_CHECK,
+                       DS_TIP_PRESC DS_TIP_PRESC_CHECK,
+                       CD_UNIDADE DESC_UNID_CHECK,
+                       SUM(QT_CONSUMO) QTDE_CHECADA
+                  FROM (
+                        SELECT PRE_MED.CD_ATENDIMENTO,
+                               PRE_MED.CD_PRE_MED,
+                               ITPRE_MED.CD_ITPRE_MED,
+                               ITPRE_MED.CD_PRODUTO,
+                               TIP_PRESC.DS_TIP_PRESC,                               
+                               UNI_PRO.CD_UNIDADE,
+                               HRITPRE_CONS.DH_MEDICACAO,
+                               HRITPRE_CONS.QT_CONSUMO
+                          FROM DBAMV.HRITPRE_CONS
+                          JOIN DBAMV.ITPRE_MED
+                            ON HRITPRE_CONS.CD_ITPRE_MED = ITPRE_MED.CD_ITPRE_MED
+                          JOIN DBAMV.PRE_MED
+                            ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED
+                          JOIN DBAMV.TIP_PRESC
+                            ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC
+                          JOIN DBAMV.UNI_PRO
+                            ON ITPRE_MED.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                          LEFT JOIN DBAMV.PRODUTO
+                            ON ITPRE_MED.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                         WHERE FL_IMPRESSO = 'S'
+                           AND PRE_MED.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                           AND ITPRE_MED.DH_CANCELADO IS NULL
+                           AND ITPRE_MED.TP_SITUACAO = 'N'
+                           AND ITPRE_MED.SN_HORARIO_GERADO = 'S'
+                           AND (HRITPRE_CONS.SN_SUSPENSO IS NULL OR HRITPRE_CONS.SN_SUSPENSO = 'N')
+                           AND (HRITPRE_CONS.SN_SUSPENSO_PRESC IS NULL OR HRITPRE_CONS.SN_SUSPENSO_PRESC = 'N')
+                           AND ITPRE_MED.CD_TIP_ESQ IN
+                               ('DIE','GAS','HEM','DET','DEP','SOR','MDN','MDA','MDO',
+                                'MDU','MMD','FIS','DRO','SED','DTA','MNP','INF')
+                       )
+                 GROUP BY CD_ATENDIMENTO,CD_PRE_MED,Trunc(DH_MEDICACAO),CD_PRODUTO,DS_TIP_PRESC,CD_UNIDADE
+               ) ITENS_CHECADOS
+             ON ITENS_SAIDEV.CD_ATEND_SAIDEV = ITENS_CHECADOS.CD_ATEND_CHECK
+            AND ITENS_SAIDEV.CD_PRE_MED_SAIDEV = ITENS_CHECADOS.CD_PRE_MED_CHECK
+            AND ITENS_SAIDEV.CD_PRODUTO_SAIDEV = ITENS_CHECADOS.CD_PRODUTO_CHECK
+       ) ITENS_SAIDEV_CHECK
+    ON ITENS_PRESC.CD_ATENDIMENTO = ITENS_SAIDEV_CHECK.CD_ATEND
+   AND ITENS_PRESC.CD_PRE_MED = ITENS_SAIDEV_CHECK.COD_PRE_MED
+   AND ITENS_PRESC.CD_PRODUTO = ITENS_SAIDEV_CHECK.COD_PRODUTO 
+     ) ITENS
+  JOIN DBAMV.ATENDIME
+    ON ITENS.CD_ATENDIME = ATENDIME.CD_ATENDIMENTO
+   AND ATENDIME.TP_ATENDIMENTO IN ('A','E','U')
+  JOIN DBAMV.PACIENTE
+    ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+  JOIN DBAMV.CONVENIO
+    ON ATENDIME.CD_CONVENIO = CONVENIO.CD_CONVENIO
+  JOIN DBAMV.CON_PLA
+    ON ATENDIME.CD_CONVENIO = CON_PLA.CD_CONVENIO
+   AND ATENDIME.CD_CON_PLA = CON_PLA.CD_CON_PLA
+ORDER BY CD_PRESCRICAO,DT_PRESC</SqlCommand><Type>Table</Type></ITENS_ANALITICOS><ITENS_SINTETICO Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>ITENS_SINTETICO</Alias><Columns count="13" isList="true"><value>CD_ATENDIME,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_PRO_FAT,System.String</value><value>COD_PROD,System.Int32</value><value>DESC_PRESC,System.String</value><value>DESC_UNID,System.String</value><value>NM_PACIENTE,System.String</value><value>QTDE_ATEND_GERAL,System.Double</value><value>QTDE_CHECADA_GERAL,System.Double</value><value>QTDE_CONTA_GERAL,System.Double</value><value>QTDE_DEVO_GERAL,System.Double</value><value>QTDE_PRESC_GERAL,System.Double</value><value>QTDE_SOLICIT_GERAL,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ITENS_SINTETICO</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       ITENS.CD_ATENDIME,
+       PACIENTE.CD_PACIENTE,
+       PACIENTE.NM_PACIENTE,
+       ITENS.COD_PROD,
+       ITENS.DESC_PRESC,
+       ITENS.DESC_UNID,
+       PRODUTO.CD_PRO_FAT,
+       Sum(ITENS.QTDE_PRESC) QTDE_PRESC_GERAL,
+       Sum(ITENS.QTDE_SOLICIT) QTDE_SOLICIT_GERAL,
+       Sum(ITENS.QTDE_ATEND) QTDE_ATEND_GERAL,
+       Sum(ITENS.QTDE_CHECADA) QTDE_CHECADA_GERAL,       
+       Sum(ITENS.QTDE_DEVO) QTDE_DEVO_GERAL,  
+       TOTAIS_CONTA.QTDE_CONTA QTDE_CONTA_GERAL
+  FROM (
+SELECT 
+       Nvl(ITENS_PRESC.CD_ATENDIMENTO,  ITENS_SAIDEV_CHECK.CD_ATEND) CD_ATENDIME,
+       Nvl(ITENS_PRESC.CD_PRE_MED,      ITENS_SAIDEV_CHECK.COD_PRE_MED) CD_PRESCRICAO,
+       Nvl(ITENS_SAIDEV_CHECK.DT_PRE_MED_SAIDEV,ITENS_PRESC.DT_PRE_MED) DT_PRESC,
+       Nvl(ITENS_PRESC.CD_PRODUTO,      ITENS_SAIDEV_CHECK.COD_PRODUTO) COD_PROD,
+       Nvl(ITENS_PRESC.DS_TIP_PRESC,    Nvl(ITENS_SAIDEV_CHECK.DS_PRODUTO_SAIDEV,ITENS_SAIDEV_CHECK.DS_TIP_PRESC_CHECK)) DESC_PRESC,
+       Nvl(ITENS_PRESC.CD_UNIDADE,      Nvl(DESC_UNID_SAIDEV,DESC_UNID_CHECK)) DESC_UNID,
+       ITENS_PRESC.QT_ITPRE_MED QTDE_PRESC,
+       ITENS_SAIDEV_CHECK.QTDE_SOLICIT,
+       ITENS_SAIDEV_CHECK.QTDE_ATEND,
+       ITENS_SAIDEV_CHECK.QTDE_CHECADA,
+       ITENS_SAIDEV_CHECK.QTDE_DEVO
+  FROM (
+        
+        SELECT PRE_MED.CD_ATENDIMENTO,
+               PRE_MED.CD_PRE_MED,
+               PRE_MED.DT_PRE_MED,
+               ITPRE_MED.CD_ITPRE_MED,
+               ITPRE_MED.CD_TIP_ESQ,
+               ITPRE_MED.CD_PRODUTO,
+               TIP_PRESC.DS_TIP_PRESC,
+               UNI_PRO.CD_UNIDADE,
+               QT_ITPRE_MED
+          FROM DBAMV.ITPRE_MED
+          JOIN DBAMV.PRE_MED
+            ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED
+          JOIN DBAMV.TIP_PRESC
+            ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC
+          JOIN DBAMV.UNI_PRO
+            ON ITPRE_MED.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+         WHERE PRE_MED.FL_IMPRESSO = 'S'
+           AND PRE_MED.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+           AND ITPRE_MED.DH_CANCELADO IS NULL
+           AND ITPRE_MED.TP_SITUACAO = 'N'
+           AND ITPRE_MED.SN_HORARIO_GERADO = 'S'
+           AND ITPRE_MED.CD_TIP_ESQ IN ('DIE','GAS','HEM','DET','DEP','SOR','MDN','MDA',
+                                        'MDO','MDU','MMD','FIS','DRO','SED','DTA','MNP','INF')
+       ) ITENS_PRESC
+  FULL JOIN 
+       (            
+        SELECT Nvl(CD_ATEND_SAIDEV,   CD_ATEND_CHECK)   CD_ATEND,
+               Nvl(CD_PRE_MED_SAIDEV, CD_PRE_MED_CHECK) COD_PRE_MED,
+               DT_PRE_MED_SAIDEV,
+               Nvl(CD_PRODUTO_SAIDEV, CD_PRODUTO_CHECK) COD_PRODUTO,
+               DS_PRODUTO_SAIDEV,
+               DS_TIP_PRESC_CHECK,
+               DESC_UNID_SAIDEV,
+               DESC_UNID_CHECK,
+               QTDE_SOLICIT,
+               QTDE_ATEND,
+               QTDE_CHECADA,
+               QTDE_DEVO
+          FROM (
+                SELECT CD_ATEND_SAIDEV,
+                       CD_PRE_MED_SAIDEV,
+                       DT_PRE_MED_SAIDEV,  
+                       CD_PRODUTO_SAIDEV, 
+                       DS_PRODUTO_SAIDEV,
+                       DESC_UNID_SAIDEV, 
+                       Sum(QT_SOLICITADO)   QTDE_SOLICIT,
+                       Sum(QT_ATENDIDA)     QTDE_ATEND,
+                       Sum(QTDE_DEVOLVIDA)  QTDE_DEVO
+                  FROM (
+                        SELECT Nvl(SAI.CD_ATENDIMENTO,DEV.CD_ATENDIMENTO) CD_ATEND_SAIDEV,
+                               Nvl(CD_PRE_MED_SAI,CD_PRE_MED_DEV) CD_PRE_MED_SAIDEV,
+                               SAI.DT_PRE_MED_SAI                 DT_PRE_MED_SAIDEV, 
+                               Nvl(CD_ITPRE_MED_SAI,CD_ITPRE_MED_DEV) CD_ITPRE_MED_SAIDEV,
+--                               SAI.CD_SOLSAI_PRO_SAI,
+--                               DEV.CD_SOLSAI_PRO_DEV,  
+--                               SAI.CD_ITSOLSAI_PRO_SAI,
+--                               DEV.CD_ITSOLSAI_PRO_DEV,  
+                               Nvl(CD_PRODUTO_SAI,CD_PRODUTO_DEV) CD_PRODUTO_SAIDEV,  
+                               Nvl(DS_PRODUTO_SAI,DS_PRODUTO_DEV) DS_PRODUTO_SAIDEV,
+                               Nvl(CD_UNIDADE_SAI,CD_UNIDADE_DEV) DESC_UNID_SAIDEV,
+                               SAI.CD_LOTE_SAI,
+                               DEV.CD_LOTE_DEV, 
+                               QT_SOLICITADO,
+                               QT_ATENDIDA,
+                               QTDE_DEVOLVIDA
+                          FROM (            
+                                SELECT MVTO_ESTOQUE.CD_ATENDIMENTO,
+                                       MVTO_ESTOQUE.CD_PRE_MED         CD_PRE_MED_DEV,
+                                       ITMVTO_ESTOQUE.CD_ITPRE_MED     CD_ITPRE_MED_DEV,
+                                       MVTO_ESTOQUE.CD_MVTO_ESTOQUE    CD_MVTO_ESTOQUE_DEV,
+                                       MVTO_ESTOQUE.DT_MVTO_ESTOQUE    DT_MVTO_ESTOQUE_DEV,        
+                                       MVTO_ESTOQUE.CD_SOLSAI_PRO      CD_SOLSAI_PRO_DEV,
+                                       ITMVTO_ESTOQUE.CD_ITSOLSAI_PRO  CD_ITSOLSAI_PRO_DEV,
+                                       ITMVTO_ESTOQUE.CD_PRODUTO       CD_PRODUTO_DEV,
+                                       PRODUTO.DS_PRODUTO              DS_PRODUTO_DEV,
+                                       ITMVTO_ESTOQUE.CD_UNI_PRO       CD_UNI_PRO_DEV,
+                                       UNI_PRO.CD_UNIDADE              CD_UNIDADE_DEV,
+                                       ITMVTO_ESTOQUE.CD_LOTE          CD_LOTE_DEV,
+                                       ITMVTO_ESTOQUE.QT_MOVIMENTACAO  QTDE_DEVOLVIDA                                     
+                                  FROM DBAMV.MVTO_ESTOQUE
+                                  JOIN DBAMV.ITMVTO_ESTOQUE
+                                    ON MVTO_ESTOQUE.CD_MVTO_ESTOQUE = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+                                  JOIN DBAMV.PRODUTO
+                                    ON ITMVTO_ESTOQUE.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                                  JOIN DBAMV.UNI_PRO
+                                    ON ITMVTO_ESTOQUE.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                                 WHERE MVTO_ESTOQUE.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                                   AND TP_MVTO_ESTOQUE = 'C'
+                               ) DEV
+                          FULL JOIN                                       
+                               (
+                                SELECT SOLSAI_PRO.CD_ATENDIMENTO,
+                                       SOLSAI_PRO.CD_PRE_MED          CD_PRE_MED_SAI,
+                                       PRE_MED.DT_PRE_MED             DT_PRE_MED_SAI,        
+                                       ITSOLSAI_PRO.CD_ITPRE_MED      CD_ITPRE_MED_SAI,
+                                       SOLSAI_PRO.CD_SOLSAI_PRO       CD_SOLSAI_PRO_SAI,
+                                       ITSOLSAI_PRO.CD_ITSOLSAI_PRO   CD_ITSOLSAI_PRO_SAI,
+                                       ITSOLSAI_PRO.CD_PRODUTO        CD_PRODUTO_SAI,
+                                       ITSOLSAI_PRO.CD_UNI_PRO        CD_UNI_PRO_SAI,
+                                       UNI_PRO.CD_UNIDADE             CD_UNIDADE_SAI,
+                                       ITMVTO_ESTOQUE.CD_LOTE         CD_LOTE_SAI,
+                                       PRODUTO.DS_PRODUTO             DS_PRODUTO_SAI,
+                                       ITSOLSAI_PRO.QT_SOLICITADO,
+                                       ITSOLSAI_PRO.QT_ATENDIDA
+                                  FROM DBAMV.SOLSAI_PRO
+                                  JOIN DBAMV.ITSOLSAI_PRO
+                                    ON SOLSAI_PRO.CD_SOLSAI_PRO = ITSOLSAI_PRO.CD_SOLSAI_PRO
+                                  JOIN DBAMV.PRODUTO                                  
+                                    ON ITSOLSAI_PRO.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                                  JOIN DBAMV.UNI_PRO
+                                    ON ITSOLSAI_PRO.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                                  LEFT JOIN DBAMV.ITMVTO_ESTOQUE
+                                    ON ITSOLSAI_PRO.CD_ITSOLSAI_PRO = ITMVTO_ESTOQUE.CD_ITSOLSAI_PRO
+                                  LEFT JOIN DBAMV.PRE_MED
+                                    ON SOLSAI_PRO.CD_PRE_MED = PRE_MED.CD_PRE_MED              
+                                   AND PRE_MED.FL_IMPRESSO = 'S'
+                                 WHERE SOLSAI_PRO.TP_SOLSAI_PRO IN ('P')
+                                   AND SOLSAI_PRO.TP_SITUACAO IN ('C', 'S')
+                                   AND SOLSAI_PRO.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                               ) SAI
+                            ON DEV.CD_ATENDIMENTO = SAI.CD_ATENDIMENTO
+                           AND DEV.CD_PRODUTO_DEV = SAI.CD_PRODUTO_SAI
+                           AND DEV.CD_LOTE_DEV = SAI.CD_LOTE_SAI
+                           AND DEV.CD_UNI_PRO_DEV = SAI.CD_UNI_PRO_SAI
+                       ) GROUP BY CD_ATEND_SAIDEV,CD_PRE_MED_SAIDEV,DT_PRE_MED_SAIDEV,
+                                  CD_PRODUTO_SAIDEV,DS_PRODUTO_SAIDEV,DESC_UNID_SAIDEV
+               )ITENS_SAIDEV
+          FULL JOIN 
+               (
+                SELECT CD_ATENDIMENTO CD_ATEND_CHECK,
+                       CD_PRE_MED CD_PRE_MED_CHECK,
+                       Trunc(DH_MEDICACAO) DT_MED_CHEK,
+                       CD_PRODUTO CD_PRODUTO_CHECK,
+                       DS_TIP_PRESC DS_TIP_PRESC_CHECK,
+                       CD_UNIDADE DESC_UNID_CHECK,
+                       SUM(QT_CONSUMO) QTDE_CHECADA
+                  FROM (
+                        SELECT PRE_MED.CD_ATENDIMENTO,
+                               PRE_MED.CD_PRE_MED,
+                               ITPRE_MED.CD_ITPRE_MED,
+                               ITPRE_MED.CD_PRODUTO,
+                               TIP_PRESC.DS_TIP_PRESC,                               
+                               UNI_PRO.CD_UNIDADE,
+                               HRITPRE_CONS.DH_MEDICACAO,
+                               HRITPRE_CONS.QT_CONSUMO
+                          FROM DBAMV.HRITPRE_CONS
+                          JOIN DBAMV.ITPRE_MED
+                            ON HRITPRE_CONS.CD_ITPRE_MED = ITPRE_MED.CD_ITPRE_MED
+                          JOIN DBAMV.PRE_MED
+                            ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED
+                          JOIN DBAMV.TIP_PRESC
+                            ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC
+                          JOIN DBAMV.UNI_PRO
+                            ON ITPRE_MED.CD_UNI_PRO = UNI_PRO.CD_UNI_PRO
+                          LEFT JOIN DBAMV.PRODUTO
+                            ON ITPRE_MED.CD_PRODUTO = PRODUTO.CD_PRODUTO
+                         WHERE FL_IMPRESSO = 'S'
+                           AND PRE_MED.CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+                           AND ITPRE_MED.DH_CANCELADO IS NULL
+                           AND ITPRE_MED.TP_SITUACAO = 'N'
+                           AND ITPRE_MED.SN_HORARIO_GERADO = 'S'
+                           AND (HRITPRE_CONS.SN_SUSPENSO IS NULL OR HRITPRE_CONS.SN_SUSPENSO = 'N')
+                           AND (HRITPRE_CONS.SN_SUSPENSO_PRESC IS NULL OR HRITPRE_CONS.SN_SUSPENSO_PRESC = 'N')
+                           AND ITPRE_MED.CD_TIP_ESQ IN
+                               ('DIE','GAS','HEM','DET','DEP','SOR','MDN','MDA','MDO',
+                                'MDU','MMD','FIS','DRO','SED','DTA','MNP','INF')
+                       )
+                 GROUP BY CD_ATENDIMENTO,CD_PRE_MED,Trunc(DH_MEDICACAO),CD_PRODUTO,DS_TIP_PRESC,CD_UNIDADE
+               ) ITENS_CHECADOS
+             ON ITENS_SAIDEV.CD_ATEND_SAIDEV = ITENS_CHECADOS.CD_ATEND_CHECK
+            AND ITENS_SAIDEV.CD_PRE_MED_SAIDEV = ITENS_CHECADOS.CD_PRE_MED_CHECK
+            AND ITENS_SAIDEV.CD_PRODUTO_SAIDEV = ITENS_CHECADOS.CD_PRODUTO_CHECK
+       ) ITENS_SAIDEV_CHECK
+    ON ITENS_PRESC.CD_ATENDIMENTO = ITENS_SAIDEV_CHECK.CD_ATEND
+   AND ITENS_PRESC.CD_PRE_MED = ITENS_SAIDEV_CHECK.COD_PRE_MED
+   AND ITENS_PRESC.CD_PRODUTO = ITENS_SAIDEV_CHECK.COD_PRODUTO 
+     ) ITENS
+  JOIN DBAMV.ATENDIME
+    ON ITENS.CD_ATENDIME = ATENDIME.CD_ATENDIMENTO
+   AND ATENDIME.TP_ATENDIMENTO IN ('A','E','U')
+  JOIN DBAMV.PACIENTE
+    ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+  JOIN DBAMV.PRODUTO
+    ON ITENS.COD_PROD = PRODUTO.CD_PRODUTO
+  LEFT JOIN (
+			        SELECT DISTINCT CD_ATENDIMENTO,
+							        CD_REG_AMB
+			        FROM DBAMV.ITREG_AMB
+			        WHERE CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+			      ) ATENDIME_CONTA
+    ON ATENDIME.CD_ATENDIMENTO = ATENDIME_CONTA.CD_ATENDIMENTO 
+  LEFT JOIN 
+            (
+              SELECT ITREG_AMB.CD_REG_AMB,
+					 ITREG_AMB.CD_PRO_FAT,
+					 Sum(ITREG_AMB.QT_LANCAMENTO) QTDE_CONTA
+				FROM DBAMV.ITREG_AMB
+				WHERE CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+				GROUP BY ITREG_AMB.CD_REG_AMB,ITREG_AMB.CD_PRO_FAT
+            ) TOTAIS_CONTA
+    ON ATENDIME_CONTA.CD_REG_AMB = TOTAIS_CONTA.CD_REG_AMB
+   AND PRODUTO.CD_PRO_FAT = TOTAIS_CONTA.CD_PRO_FAT
+   AND PRODUTO.CD_PRO_FAT = TOTAIS_CONTA.CD_PRO_FAT
+   AND ({V_CD_CONTA} IS NULL OR {V_CD_CONTA} = 0 OR ATENDIME_CONTA.CD_REG_AMB = {V_CD_CONTA})
+   AND {V_VALOR}
+
+ GROUP BY ITENS.CD_ATENDIME,PACIENTE.CD_PACIENTE,PACIENTE.NM_PACIENTE,
+          ITENS.COD_PROD,ITENS.DESC_PRESC,ITENS.DESC_UNID,
+          PRODUTO.CD_PRO_FAT,TOTAIS_CONTA.QTDE_CONTA
+ ORDER BY DESC_PRESC</SqlCommand><Type>Table</Type></ITENS_SINTETICO><ITENS_CONTA Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>ITENS_CONTA</Alias><Columns count="10" isList="true"><value>CD_CONVENIO,System.Int32</value><value>CD_PRO_FAT,System.String</value><value>CD_REG_AMB,System.Int32</value><value>DS_PRO_FAT,System.String</value><value>DS_UNIDADE,System.String</value><value>DT_LANCAMENTO,System.DateTime</value><value>DT_LANCAMENTO_FINAL,System.DateTime</value><value>NM_CONVENIO,System.String</value><value>QTDE_CONTA,System.Int32</value><value>SN_FECHADA,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>ITENS_CONTA</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       REG_AMB.CD_REG_AMB,
+       REG_AMB.SN_FECHADA,
+       REG_AMB.DT_LANCAMENTO,
+       REG_AMB.DT_LANCAMENTO_FINAL,
+       REG_AMB.CD_CONVENIO,
+       CONVENIO.NM_CONVENIO,       
+       ITREG_AMB.CD_PRO_FAT,
+       PRO_FAT.DS_PRO_FAT,
+       PRO_FAT.DS_UNIDADE,
+       Sum(ITREG_AMB.QT_LANCAMENTO) QTDE_CONTA 
+  FROM DBAMV.REG_AMB
+  JOIN DBAMV.ITREG_AMB
+    ON REG_AMB.CD_REG_AMB = ITREG_AMB.CD_REG_AMB
+  JOIN DBAMV.PRO_FAT
+    ON ITREG_AMB.CD_PRO_FAT = PRO_FAT.CD_PRO_FAT
+  JOIN DBAMV.CONVENIO
+    ON REG_AMB.CD_CONVENIO = CONVENIO.CD_CONVENIO
+ WHERE CD_ATENDIMENTO = {V_CD_ATENDIMENTO}
+   AND ITREG_AMB.CD_GRU_FAT IN ({V_GRU_FAT_AUX})
+   AND ({V_CD_CONTA} IS NULL OR {V_CD_CONTA} = 0 OR REG_AMB.CD_REG_AMB = {V_CD_CONTA})
+ GROUP BY REG_AMB.CD_REG_AMB,
+       REG_AMB.SN_FECHADA,
+       REG_AMB.DT_LANCAMENTO,
+       REG_AMB.DT_LANCAMENTO_FINAL,
+       REG_AMB.CD_CONVENIO,
+       CONVENIO.NM_CONVENIO,      
+       ITREG_AMB.CD_PRO_FAT,
+       PRO_FAT.DS_PRO_FAT,
+       PRO_FAT.DS_UNIDADE</SqlCommand><Type>Table</Type></ITENS_CONTA><GRUPO_FATURAMENTO Ref="6" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>GRUPO_FATURAMENTO</Alias><Columns count="2" isList="true"><value>CD_GRU_FAT,System.Int32</value><value>DS_GRU_FAT,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>GRUPO_FATURAMENTO</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       CD_GRU_FAT,
+       DS_GRU_FAT
+  FROM DBAMV.GRU_FAT
+ WHERE SN_ATIVO = 'S'
+ ORDER BY 1</SqlCommand><Type>Table</Type></GRUPO_FATURAMENTO></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="5" isList="true"><value>,V_CD_ATENDIMENTO,_x002a__x0020_Atendimento_x003a_,,System.Int32,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_LISTA_GRU_FAT,_x002a__x0020_Grupo_x0020_de_x0020_Faturamento,,Stimulsoft.Report.IntList,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_GRUPO_FATURAMENTO_x002e_CD_GRU_FAT_x003c__x002f_KeysColumn_x003e__x003c_SortDirection_x003e_Asc_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_GRUPO_FATURAMENTO_x002e_DS_GRU_FAT_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,Nothing</value><value>,V_CD_CONTA,_x0031__x0020__x002d__x0020_Conta_x003a_,,System.Int32,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_GRU_FAT_AUX,V_GRU_FAT_AUX,,System.String,V_LISTA_GRU_FAT_x002e_Count_x0028__x0029__x0020__x003d__x003d__x0020_0_x0020__x003f__x0020__x0022__x0027__x0027__x0022__x0020__x003a__x0020_V_LISTA_GRU_FAT_x002e_ToQueryString_x0028__x0022__x0022__x0029_,True,True,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,True,FromVariable</value><value>,V_VALOR,V_VALOR,,System.String,_x0031__x003d_1,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><Key>8ab8ceaeb0c64d8cac161b525236b47f</Key><MetaTags count="1" isList="true"><value>reportId,_x0037_4</value></MetaTags><Pages count="2" isList="true"><Sintetico Ref="7" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="8" isList="true"><PageHeaderBand1 Ref="8" isKey="true" type="PageHeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.4,20,1.6</ClientRectangle><Components count="4" isList="true"><Text29 Ref="9" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.8,1.2,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text29</Name><Page isRef="7"/><Parent isRef="8"/><Text>{Today}</Text><TextBrush>Black</TextBrush><TextFormat Ref="10" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text29><Text30 Ref="11" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.6,1.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text30</Name><Page isRef="7"/><Parent isRef="8"/><Text>{Time}</Text><TextBrush>Black</TextBrush><TextFormat Ref="12" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm:ss</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text30><Text36 Ref="13" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.4,1.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><Guid>ff7b77b56f2842198d2eeec42de79ed1</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text36</Name><Page isRef="7"/><Parent isRef="8"/><Text>Emitido:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text36><Text45 Ref="14" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,20,1.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,18,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text45</Name><Page isRef="7"/><Parent isRef="8"/><Text>ANALISE DE LANÇAMENTOS AMBULATORIAL</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text45></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>PageHeaderBand1</Name><Page isRef="7"/><Parent isRef="7"/></PageHeaderBand1><GroupHeaderBand1 Ref="15" isKey="true" type="GroupHeaderBand"><Brush>[165:165:165]</Brush><ClientRectangle>0,2.8,20,1.8</ClientRectangle><Components count="11" isList="true"><Text1 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>fb4230e24d3d428185057549b6a3efd4</Guid><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="7"/><Parent isRef="15"/><Text>Paciente...:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text1><Text31 Ref="17" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0.6,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>ead03df0994f4b588a77a94009ca3892</Guid><Margins>0,0,0,0</Margins><Name>Text31</Name><Page isRef="7"/><Parent isRef="15"/><Text>Atend.......:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text31><Text37 Ref="18" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,1.2,8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>6908f8ac08d44b7886aeb82d7e5a394d</Guid><Margins>0,0,0,0</Margins><Name>Text37</Name><Page isRef="7"/><Parent isRef="15"/><Text>{ITENS_ANALITICOS.CD_CONVENIO} - {ITENS_ANALITICOS.NM_CONVENIO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text37><Text93 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,1.2,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>847baa8c49f947c89cd4e76a2093531e</Guid><Margins>0,0,0,0</Margins><Name>Text93</Name><Page isRef="7"/><Parent isRef="15"/><Text>Convenio.:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text93><Text94 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,0.6,8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>f87525a4d74342c0b6056b8c40be974e</Guid><Margins>0,0,0,0</Margins><Name>Text94</Name><Page isRef="7"/><Parent isRef="15"/><Text>{ITENS_ANALITICOS.CD_ATENDIME}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text94><Text95 Ref="21" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,0,17.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>142aeef3581843408dc07a845efd6a70</Guid><Margins>0,0,0,0</Margins><Name>Text95</Name><Page isRef="7"/><Parent isRef="15"/><Text>{ITENS_ANALITICOS.CD_PACIENTE} - {ITENS_ANALITICOS.NM_PACIENTE}&#13;
+</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text95><Text32 Ref="22" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>fcc9fbb243a84cf5ae66e61ddbcf83db</Guid><Margins>0,0,0,0</Margins><Name>Text32</Name><Page isRef="7"/><Parent isRef="15"/><Text>Dta. Atend.:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text32><Text33 Ref="23" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.6,0.6,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>b86ddfaef5a44c09b0f2e066f16eb740</Guid><Margins>0,0,0,0</Margins><Name>Text33</Name><Page isRef="7"/><Parent isRef="15"/><Text>Dt. Alta:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text33><Text34 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>17.4,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>ecff30933cf94396ba071137e6285e4e</Guid><Margins>0,0,0,0</Margins><Name>Text34</Name><Page isRef="7"/><Parent isRef="15"/><Text>{ITENS_ANALITICOS.DT_ALTA}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="25" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text34><Text35 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>13,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>61e0a680f4d841419645396d3f65c929</Guid><Margins>0,0,0,0</Margins><Name>Text35</Name><Page isRef="7"/><Parent isRef="15"/><Text>{ITENS_ANALITICOS.DT_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="27" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text35><Text38 Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,1.2,9.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>180a71bb6fad48f1a56b19c66da8ed27</Guid><Margins>0,0,0,0</Margins><Name>Text38</Name><Page isRef="7"/><Parent isRef="15"/><Text>Plano..........: {ITENS_ANALITICOS.CD_CON_PLA} - {ITENS_ANALITICOS.DS_CON_PLA}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text38></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>GroupHeaderBand1</Name><Page isRef="7"/><Parent isRef="7"/><ResetPageNumber>False</ResetPageNumber></GroupHeaderBand1><GroupHeaderBand6 Ref="29" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,5.4,20,3.6</ClientRectangle><Components count="10" isList="true"><Text79 Ref="30" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,2.8,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>75c69db46fa14bcd8781004036a46dd5</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text79</Name><Page isRef="7"/><Parent isRef="29"/><Text>Qtde Conta</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text79><Text80 Ref="31" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>15.2,2.8,2.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>2bfaf12ea8764cea8801978cbadc9b07</Guid><Margins>0,0,0,0</Margins><Name>Text80</Name><Page isRef="7"/><Parent isRef="29"/><Text>Unidade</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text80><Text77 Ref="32" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,1.2,10.6,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>a882d1e2a1854a7e8f3f7beeb7a81c51</Guid><Margins>0,0,0,0</Margins><Name>Text77</Name><Page isRef="7"/><Parent isRef="29"/><Text>Conta: {ITENS_CONTA.CD_REG_AMB}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text77><Text78 Ref="33" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>10.6,1.2,2.4,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>597ffc156e194d5bb9ef44912a9850b0</Guid><Margins>0,0,0,0</Margins><Name>Text78</Name><Page isRef="7"/><Parent isRef="29"/><Text>Data Inicio:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text78><Text83 Ref="34" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>13,1.2,2.6,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>75ca9ae47a104829a2f5938bf0299535</Guid><Margins>0,0,0,0</Margins><Name>Text83</Name><Page isRef="7"/><Parent isRef="29"/><Text>{ITENS_CONTA.DT_LANCAMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="35" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text83><Text84 Ref="36" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>15.6,1.2,2,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>029a8d30632047c19a0763adc893c1f8</Guid><Margins>0,0,0,0</Margins><Name>Text84</Name><Page isRef="7"/><Parent isRef="29"/><Text>Data Fim:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text84><Text85 Ref="37" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>17.6,1.2,2.4,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>8a8c451f75334fd786f96abd5da87d1c</Guid><Margins>0,0,0,0</Margins><Name>Text85</Name><Page isRef="7"/><Parent isRef="29"/><Text>{ITENS_CONTA.DT_LANCAMENTO_FINAL}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="38" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text85><Text86 Ref="39" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,2,20,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>7e23fe66aee64b14a14f7ec7a293ba81</Guid><Margins>0,0,0,0</Margins><Name>Text86</Name><Page isRef="7"/><Parent isRef="29"/><Text>Convenio: {ITENS_CONTA.CD_CONVENIO} - {ITENS_CONTA.NM_CONVENIO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text86><Text74 Ref="40" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,2.8,15,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>b8b4bc30e1fb43e4b3718dc2efad2b0d</Guid><Margins>0,0,0,0</Margins><Name>Text74</Name><Page isRef="7"/><Parent isRef="29"/><Text>Produto</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text74><Text81 Ref="41" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,0.2,20,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>098faad0e1ad4be88fdc39c1fb72cdc6</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text81</Name><Page isRef="7"/><Parent isRef="29"/><Text>   Total Geral de Itens Conta</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text81></Components><Condition>{ITENS_CONTA.CD_REG_AMB}</Condition><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>cfa2b1243cf44d21b426223b496424e0</Guid><Name>GroupHeaderBand6</Name><Page isRef="7"/><Parent isRef="7"/><ResetPageNumber>False</ResetPageNumber></GroupHeaderBand6><DataBand1 Ref="42" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,9.8,20,0.6</ClientRectangle><Components count="3" isList="true"><Text82 Ref="43" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,15,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,8</Font><Guid>a453b9371c364b06adb87a00fbcbcaba</Guid><Margins>0,0,0,0</Margins><Name>Text82</Name><Page isRef="7"/><Parent isRef="42"/><Text>{ITENS_CONTA.DS_PRO_FAT}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text82><Text87 Ref="44" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>dc2c072e46ee481bab2820b7d2878f80</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text87</Name><Page isRef="7"/><Parent isRef="42"/><Text>{ITENS_CONTA.QTDE_CONTA}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text87><Text88 Ref="45" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.2,0,2.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>e562eda0e7184363a8efb63ea2ff1f74</Guid><Margins>0,0,0,0</Margins><Name>Text88</Name><Page isRef="7"/><Parent isRef="42"/><Text>{ITENS_CONTA.DS_UNIDADE}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text88></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>ITENS_CONTA</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>969e49b50f8e43a4bbc6955136a442c6</Guid><KeepDetails>None</KeepDetails><LimitRows/><Name>DataBand1</Name><Page isRef="7"/><Parent isRef="7"/><Sort count="2" isList="true"><value>ASC</value><value>CD_PRO_FAT</value></Sort></DataBand1><GroupFooterBand4 Ref="46" isKey="true" type="GroupFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,11.2,20,0.8</ClientRectangle><Components count="2" isList="true"><Text75 Ref="47" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>9e96ad6fa23d493da60eb183c67810a6</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text75</Name><Page isRef="7"/><Parent isRef="46"/><Text>{SumI(ITENS_CONTA.QTDE_CONTA)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text75><Text76 Ref="48" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.2,18,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>c1bc18d88d8944fab25a03ec6a6722cc</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text76</Name><Page isRef="7"/><Parent isRef="46"/><Text>Total Geral Itens Conta:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text76></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>GroupFooterBand4</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand4><GroupHeaderBand3 Ref="49" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,12.8,20,2</ClientRectangle><Components count="9" isList="true"><Text53 Ref="50" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,1.2,6.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>a0ecf23544fd44e49e68db292bac4f63</Guid><Margins>0,0,0,0</Margins><Name>Text53</Name><Page isRef="7"/><Parent isRef="49"/><Text>Produto</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text53><Text54 Ref="51" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>8.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>aa61f4504756437d895444014272be62</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text54</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Presc.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text54><Text55 Ref="52" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>10.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>30d1520659a34824aab4a286e219c02c</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text55</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Solic.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text55><Text56 Ref="53" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>12.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>be003bf15fec4cd7ac286357f2d09619</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text56</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Atend.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text56><Text57 Ref="54" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>14.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>a350006d6efa4a519980a7dd692d2280</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text57</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Check</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text57><Text58 Ref="55" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>16.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>193d89b2d1cf4a6fba83c11c92ea7a8b</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text58</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Dev</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text58><Text59 Ref="56" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>6.6,1.2,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>0f1f33f3c4ef4529b42571edef584068</Guid><Margins>0,0,0,0</Margins><Name>Text59</Name><Page isRef="7"/><Parent isRef="49"/><Text>Unidade</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text59><Text60 Ref="57" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,0.2,20,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>68be98330aab41eebf4efa8756105ecd</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text60</Name><Page isRef="7"/><Parent isRef="49"/><Text>   Total Geral de Itens</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text60><Text90 Ref="58" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,1.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>c864fb34a3644d8e862c908cda4d14ce</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text90</Name><Page isRef="7"/><Parent isRef="49"/><Text>Qtde Conta</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text90></Components><Condition>{ITENS_SINTETICO.CD_ATENDIME}</Condition><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>GroupHeaderBand3</Name><Page isRef="7"/><Parent isRef="7"/><ResetPageNumber>False</ResetPageNumber></GroupHeaderBand3><DataBand2 Ref="59" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,15.6,20,0.6</ClientRectangle><Components count="8" isList="true"><Text46 Ref="60" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,6.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,8</Font><Guid>dc95a663e9964110a97e6d58ad10c51a</Guid><Margins>0,0,0,0</Margins><Name>Text46</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.DESC_PRESC}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text46><Text47 Ref="61" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>8.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>c62fc979144647aeab252e86195bbd4e</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text47</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_PRESC_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text47><Text48 Ref="62" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>73a1d21f0e0c44e682ad6040f0f184ca</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text48</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_SOLICIT_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text48><Text49 Ref="63" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>12.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>c4dc39078ef84c02a2b910d8300ffab5</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text49</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_ATEND_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text49><Text50 Ref="64" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>14.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>584d22ad9d9a443ca166fb497b3c0bf8</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text50</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_CHECADA_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text50><Text51 Ref="65" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>b61bd98f128b46e897591bc2cb43569f</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text51</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_DEVO_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text51><Text52 Ref="66" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>6.6,0,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,8</Font><Guid>82775d6d13a14648b034bb21d37abbdd</Guid><Margins>0,0,0,0</Margins><Name>Text52</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.DESC_UNID}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text52><Text91 Ref="67" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>5e469bf908034a30a62559dbfb7b3d64</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text91</Name><Page isRef="7"/><Parent isRef="59"/><Text>{ITENS_SINTETICO.QTDE_CONTA_GERAL}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text91></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>ITENS_SINTETICO</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>d62dc93745224ffabdafbd336752d39d</Guid><KeepDetails>None</KeepDetails><LimitRows/><Name>DataBand2</Name><Page isRef="7"/><Parent isRef="7"/><Sort count="0" isList="true"/></DataBand2><GroupFooterBand3 Ref="68" isKey="true" type="GroupFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,17,20,0.8</ClientRectangle><Components count="7" isList="true"><Text39 Ref="69" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.2,8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>b0e1d97968914744b0b961c3ab5ba197</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text39</Name><Page isRef="7"/><Parent isRef="68"/><Text>Total Geral Itens:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text39><Text40 Ref="70" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>8.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>49cb721790d04e28a21f4b9a9ffd3b3a</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text40</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_PRESC_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text40><Text41 Ref="71" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>10.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>c751fd045d7d4f74bb930c3fb51255ce</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text41</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_SOLICIT_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text41><Text42 Ref="72" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>12.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>0aa692b1a6d34846af3a94994d09cc95</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text42</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_ATEND_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text42><Text43 Ref="73" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>14.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>5e65742e177b492f894aac4ccd271127</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text43</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_CHECADA_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text43><Text44 Ref="74" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>16.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>a81268a3e292493b9c9da2a75a14ceaa</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text44</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_DEVO_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text44><Text92 Ref="75" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>9179747af7394bf18897946d004cf7a7</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text92</Name><Page isRef="7"/><Parent isRef="68"/><Text>{SumI(ITENS_SINTETICO.QTDE_CONTA_GERAL)}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text92></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>GroupFooterBand3</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand3></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Guid>2d0e9dcb983845fc8c7392b902d09251</Guid><Margins>0.5,0.5,0.5,0.5</Margins><MirrorMargins>False</MirrorMargins><Name>Sintetico</Name><Page isRef="7"/><PageHeight>29.7</PageHeight><PageWidth>21</PageWidth><Report isRef="0"/><Watermark Ref="76" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Sintetico><Analitico Ref="77" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="8" isList="true"><PageHeaderBand2 Ref="78" isKey="true" type="PageHeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.4,20,1.6</ClientRectangle><Components count="4" isList="true"><Text69 Ref="79" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.8,1.2,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><Guid>9fb668d9132f4047b5d548625bcd8490</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text69</Name><Page isRef="77"/><Parent isRef="78"/><Text>{Today}</Text><TextBrush>Black</TextBrush><TextFormat Ref="80" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text69><Text70 Ref="81" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.6,1.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><Guid>1438ddf0c4074292973a51cfab709a39</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text70</Name><Page isRef="77"/><Parent isRef="78"/><Text>{Time}</Text><TextBrush>Black</TextBrush><TextFormat Ref="82" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm:ss</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text70><Text71 Ref="83" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.4,1.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,7,Bold</Font><Guid>8633dae59e554f86ac7e055078f70eba</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text71</Name><Page isRef="77"/><Parent isRef="78"/><Text>Emitido:</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text71><Text72 Ref="84" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,20,1.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,18,Bold</Font><Guid>b2ebff0666764ee9a94859c4b97e691e</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text72</Name><Page isRef="77"/><Parent isRef="78"/><Text>ANALISE DE LANÇAMENTOS INTERNADOS</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text72></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>78073b9291f345a4bf38090470921617</Guid><Name>PageHeaderBand2</Name><Page isRef="77"/><Parent isRef="77"/></PageHeaderBand2><GroupHeaderBand4 Ref="85" isKey="true" type="GroupHeaderBand"><Brush>[165:165:165]</Brush><ClientRectangle>0,2.8,20,1.8</ClientRectangle><Components count="11" isList="true"><Text61 Ref="86" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>b69ce8f68e1248eda2d5c83fb670e16b</Guid><Margins>0,0,0,0</Margins><Name>Text61</Name><Page isRef="77"/><Parent isRef="85"/><Text>Paciente...:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text61><Text62 Ref="87" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0.6,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>5aa93d13ad6047ee8dcb10dd864981fc</Guid><Margins>0,0,0,0</Margins><Name>Text62</Name><Page isRef="77"/><Parent isRef="85"/><Text>Atend.......:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text62><Text63 Ref="88" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>350030b3c15a448dbe4eb3210c201cde</Guid><Margins>0,0,0,0</Margins><Name>Text63</Name><Page isRef="77"/><Parent isRef="85"/><Text>Dta. Atend.:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text63><Text64 Ref="89" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.6,0.6,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>17484eeffeab4170875c4f95739f659c</Guid><Margins>0,0,0,0</Margins><Name>Text64</Name><Page isRef="77"/><Parent isRef="85"/><Text>Dt. Alta:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text64><Text65 Ref="90" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>17.4,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>28e415e3850b4f208fccb180c15bb64e</Guid><Margins>0,0,0,0</Margins><Name>Text65</Name><Page isRef="77"/><Parent isRef="85"/><Text>{ITENS_ANALITICOS.DT_ALTA}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="91" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text65><Text66 Ref="92" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>13,0.6,2.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>2211dc9159ee4759bfed956515b1e3ea</Guid><Margins>0,0,0,0</Margins><Name>Text66</Name><Page isRef="77"/><Parent isRef="85"/><Text>{ITENS_ANALITICOS.DT_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="93" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text66><Text67 Ref="94" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,1.2,8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>cd84d4e27a8e4d308167ff84c17e8fd7</Guid><Margins>0,0,0,0</Margins><Name>Text67</Name><Page isRef="77"/><Parent isRef="85"/><Text>{ITENS_ANALITICOS.CD_CONVENIO} - {ITENS_ANALITICOS.NM_CONVENIO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text67><Text96 Ref="95" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,1.2,2.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>786fe01b848b42db9008b16903bfd096</Guid><Margins>0,0,0,0</Margins><Name>Text96</Name><Page isRef="77"/><Parent isRef="85"/><Text>Convenio.:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text96><Text97 Ref="96" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,0.6,8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>8b0c1a91b94b4a56accd13650f5d0358</Guid><Margins>0,0,0,0</Margins><Name>Text97</Name><Page isRef="77"/><Parent isRef="85"/><Text>{ITENS_ANALITICOS.CD_ATENDIME}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text97><Text98 Ref="97" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.2,0,17.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>1f5de2b67c414e69adf51f68d55590de</Guid><Margins>0,0,0,0</Margins><Name>Text98</Name><Page isRef="77"/><Parent isRef="85"/><Text>{ITENS_ANALITICOS.CD_PACIENTE} - {ITENS_ANALITICOS.NM_PACIENTE}&#13;
+</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text98><Text68 Ref="98" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.6,1.2,9.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,12,Bold</Font><Guid>1eab7e25953348e68fedb7d9357f71e1</Guid><Margins>0,0,0,0</Margins><Name>Text68</Name><Page isRef="77"/><Parent isRef="85"/><Text>Plano..........: {ITENS_ANALITICOS.CD_CON_PLA} - {ITENS_ANALITICOS.DS_CON_PLA}</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text68></Components><Condition>{ITENS_ANALITICOS.CD_ATENDIME}</Condition><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>598f34aca42c4d2685eb0fad44cc1670</Guid><Name>GroupHeaderBand4</Name><Page isRef="77"/><Parent isRef="77"/><ResetPageNumber>False</ResetPageNumber></GroupHeaderBand4><GroupHeaderBand5 Ref="99" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,5.4,20,1</ClientRectangle><Components count="1" isList="true"><Text73 Ref="100" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,0.2,20,0.8</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>b76fa45d71ef4f44b493f5d58a97fa73</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text73</Name><Page isRef="77"/><Parent isRef="99"/><Text>   Itens Por Prescrição</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text73></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>GroupHeaderBand5</Name><Page isRef="77"/><Parent isRef="77"/><PrintOnAllPages>True</PrintOnAllPages><ResetPageNumber>False</ResetPageNumber></GroupHeaderBand5><GroupHeaderBand2 Ref="101" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,7.2,20,1.8</ClientRectangle><Components count="8" isList="true"><Text2 Ref="102" isKey="true" type="Text"><Brush>[189:215:238]</Brush><ClientRectangle>0,0.2,20,0.8</ClientRectangle><Conditions count="1" isList="true"><value>ITENS_ANALITICOS_x002e_CD_PRESCRICAO,EqualTo,_x0030_,,Numeric,[255:0:0],[242:242:242],Arial_x002c_11_x002c_Bold,True,True,_x0022_Movimentação_x0020_sem_x0020_Prescrição_x0022_,,None</value></Conditions><Expressions count="0" isList="true"/><Font>Times New Roman,11,Bold</Font><Guid>6431ab59a2674f10a25da6bef392cec2</Guid><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="77"/><Parent isRef="101"/><Text>Prescrição: {ITENS_ANALITICOS.CD_PRESCRICAO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text2><Text9 Ref="103" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,1,8.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>1a7ea45a6ee345eb8fdb5e311842e579</Guid><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="77"/><Parent isRef="101"/><Text>Produto</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text9><Text10 Ref="104" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>10.2,1,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>2027b3a62ee546cf90aae56439c60bc4</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="77"/><Parent isRef="101"/><Text>Qtde Presc.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text10><Text11 Ref="105" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>12.2,1,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>1597396583644e4b9a7a9397d1b66189</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="77"/><Parent isRef="101"/><Text>Qtde Solic.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text11><Text12 Ref="106" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>14.2,1,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>806e1fd4703940759cb22afad9c2f488</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="77"/><Parent isRef="101"/><Text>Qtde Atend.</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text12><Text13 Ref="107" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>16.2,1,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>563d4091c53a4c57a44d273de1054f30</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="77"/><Parent isRef="101"/><Text>Qtde Check</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text13><Text14 Ref="108" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,1,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>110d2702427348f699b11b3ea4776f50</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="77"/><Parent isRef="101"/><Text>Qtde Dev</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text14><Text27 Ref="109" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>8.6,1,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>f68973f89d3b4d7fa9a7f163cb8eda22</Guid><Margins>0,0,0,0</Margins><Name>Text27</Name><Page isRef="77"/><Parent isRef="101"/><Text>Unid</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text27></Components><Condition>{ITENS_ANALITICOS.CD_PRESCRICAO}</Condition><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>4cda8e2f4a754af89bb1dff44d4bf84d</Guid><Name>GroupHeaderBand2</Name><Page isRef="77"/><Parent isRef="77"/><PrintOnAllPages>True</PrintOnAllPages><ResetPageNumber>False</ResetPageNumber><SortDirection>Descending</SortDirection></GroupHeaderBand2><DataITENS_ANALITICOS Ref="110" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,9.8,20,0.6</ClientRectangle><Components count="7" isList="true"><Text3 Ref="111" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,8.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,8</Font><Guid>2f46d7556ab248c3a4e2799e2e9675b3</Guid><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.DESC_PRESC}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text3><Text4 Ref="112" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>7844cf7da5d743f594b92611a4d14838</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.QTDE_PRESC}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text4><Text5 Ref="113" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>12.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>d604b6df37e2456cb604d0b4977534f8</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.QTDE_SOLICIT}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text5><Text6 Ref="114" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>14.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>cb8762296a5c487b8897586a5b924190</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.QTDE_ATEND}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text6><Text7 Ref="115" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>308572f273db49b9b63a3695314321f2</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.QTDE_CHECADA}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text7><Text8 Ref="116" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>9728e8f3f2d74dddb6bad99ecc87effd</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.QTDE_DEVO}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text8><Text28 Ref="117" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>8.6,0,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9</Font><Guid>692bfc8645a4435493a26f7b312f2b50</Guid><Margins>0,0,0,0</Margins><Name>Text28</Name><Page isRef="77"/><Parent isRef="110"/><Text>{ITENS_ANALITICOS.DESC_UNID}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text28></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>ITENS_ANALITICOS</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>fa5dd3dd25ed421ba2fda24021055fce</Guid><KeepDetails>None</KeepDetails><LimitRows/><Name>DataITENS_ANALITICOS</Name><Page isRef="77"/><Parent isRef="77"/><Sort count="0" isList="true"/></DataITENS_ANALITICOS><GroupFooterBand1 Ref="118" isKey="true" type="GroupFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,11.2,20,1</ClientRectangle><Components count="6" isList="true"><Text15 Ref="119" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.2,10,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>99a0cf26957740be97bc05690c2347fb</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="77"/><Parent isRef="118"/><Text>Total Prescrição:</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text15><Text16 Ref="120" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>10.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>99ebacfe01e4446d9e554e7e8bbc0c92</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="77"/><Parent isRef="118"/><Text>{SumI(ITENS_ANALITICOS.QTDE_PRESC)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text16><Text17 Ref="121" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>12.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>f92dd161a2b14984b6146f81af4dc129</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="77"/><Parent isRef="118"/><Text>{SumI(ITENS_ANALITICOS.QTDE_SOLICIT)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text17><Text18 Ref="122" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>14.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>4bd0f5035518465f924f2d281a3dc3fe</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="77"/><Parent isRef="118"/><Text>{SumI(ITENS_ANALITICOS.QTDE_ATEND)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text18><Text19 Ref="123" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>16.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>d46a610927784338854fc3f56c22cad2</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="77"/><Parent isRef="118"/><Text>{SumI(ITENS_ANALITICOS.QTDE_CHECADA)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text19><Text20 Ref="124" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,9,Bold</Font><Guid>66a53f9112374b3aa7d9f2b1aa183d24</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="77"/><Parent isRef="118"/><Text>{SumI(ITENS_ANALITICOS.QTDE_DEVO)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text20></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>c3c09df1146e44c2aaaf3f14fdf0e21e</Guid><Name>GroupFooterBand1</Name><Page isRef="77"/><Parent isRef="77"/></GroupFooterBand1><GroupFooterBand2 Ref="125" isKey="true" type="GroupFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,13,20,0.8</ClientRectangle><Components count="6" isList="true"><Text21 Ref="126" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.2,10,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>b8f6cdec13a44cdba2d5a0362f725118</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="77"/><Parent isRef="125"/><Text>Total Atendimento:</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text21><Text22 Ref="127" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>10.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>8dfd23a608a74a34b5b3711cd7103cef</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="77"/><Parent isRef="125"/><Text>{SumI(ITENS_ANALITICOS.QTDE_PRESC)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text22><Text23 Ref="128" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>12.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>7b7bd55d5da646278ea8401f8a39c787</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="77"/><Parent isRef="125"/><Text>{SumI(ITENS_ANALITICOS.QTDE_SOLICIT)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text23><Text24 Ref="129" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>14.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>4211ab5549ed41ec99f024cd250d6ed5</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="77"/><Parent isRef="125"/><Text>{SumI(ITENS_ANALITICOS.QTDE_ATEND)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text24><Text25 Ref="130" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>16.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>dbcb28763a0e49d3b54ab7e0dc25ed2a</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text25</Name><Page isRef="77"/><Parent isRef="125"/><Text>{SumI(ITENS_ANALITICOS.QTDE_CHECADA)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text25><Text26 Ref="131" isKey="true" type="Text"><Border>None, Top;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>18.2,0.2,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Times New Roman,10,Bold</Font><Guid>2e44b2c96fad4056a105e79801f8dbdf</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text26</Name><Page isRef="77"/><Parent isRef="125"/><Text>{SumI(ITENS_ANALITICOS.QTDE_DEVO)}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text26></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>024512f1e0b249d48b0a9eff3d8d0b5f</Guid><Name>GroupFooterBand2</Name><Page isRef="77"/><Parent isRef="77"/></GroupFooterBand2><FooterITENS_ANALITICOS Ref="132" isKey="true" type="FooterBand"><Brush>Transparent</Brush><ClientRectangle>0,14.6,20,0</ClientRectangle><Components count="0" isList="true"/><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>523b5fa4544d435184b0cb6f1c1ff482</Guid><Name>FooterITENS_ANALITICOS</Name><Page isRef="77"/><Parent isRef="77"/></FooterITENS_ANALITICOS></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Guid>25e7ec837fc5482ebdf6c21cc9dee5d0</Guid><Margins>0.5,0.5,0.5,0.5</Margins><MirrorMargins>False</MirrorMargins><Name>Analitico</Name><Page isRef="77"/><PageHeight>29.7</PageHeight><PageWidth>21</PageWidth><Report isRef="0"/><Watermark Ref="133" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Analitico></Pages><PrinterSettings Ref="134" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Report</ReportAlias><ReportChanged>10/26/2022 05:42:01 PM</ReportChanged><ReportCreated>10/21/2022 09:43:59 AM</ReportCreated><ReportFile>ANALISE LANCAMENTOS AMB</ReportFile><ReportGuid>6b4fdbc3bcd9453d92d7406ee4cce7e2</ReportGuid><ReportName>Report</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2021.3.7 from 05 August 2021, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>
