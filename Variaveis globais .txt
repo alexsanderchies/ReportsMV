@@ -1,0 +1,10 @@
+- cdMultiEmpresa - Retorna a empresa logada. 
+- cdAtendimento - Retorna o atendimento exibido na tela.
+- cdIdPaciente  - Retorna o prontuário do paciente exibido na tela.
+- cdGeral - retorna o item exibido na tela em questão ex: Pedido de Exame, Pedido Laboratorial e Item de Agendamento.
+- cdIdVisitaAcom - Retorna o identificador do visitante ou acompanhante no modulo de portaria.
+- cdIdAdm - Retorna o identificador do prestador de serviço no modulo de portaria.
+
+
+
+https://demo.stimulsoft.com/?seeAll=reports#Net

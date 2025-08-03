@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbLN6U04w0FpQbF8S3H2L8JU2eLialH521rB8WQhJUbTsvPr5ErYnO5MfdhjySW/0cL3C0hI80jiE2gATXAlJ/B618LeSlGg4UTNoU5c9hv11pmlRgVJ7XBAVfFLRKBzwnqbDOgOEfBrRdmQS1z0Z9McE0s=</ConnectionStringEncrypted><Name>database</Name><Password>REMWEB</Password><User>REMWEB</User></database></Databases><DataSources count="4" isList="true"><FONTE_V1 Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>FONTE_V1</Alias><Columns count="20" isList="true"><value>CD_ATENDIMENTO,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_UNID_INT,System.Int32</value><value>DS_ALMOCO,System.String</value><value>DS_CEIA,System.String</value><value>DS_CID,System.String</value><value>DS_COLACAO,System.String</value><value>DS_DESJEJUM,System.String</value><value>DS_JANTAR,System.String</value><value>DS_LANCHE,System.String</value><value>DS_OBS,System.String</value><value>DS_RESUMO,System.String</value><value>DS_TIPO_DIETA,System.String</value><value>DS_UNID_INT,System.String</value><value>DTHR_INTERNACAO,System.DateTime</value><value>DT_ATENDIMENTO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>NR_IDADE,System.String</value><value>OBS_MED,System.String</value><value>SN_ACOMPANHANTE,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>FONTE_V1</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT LISTAGG(a.DS_DESJEJUM) 
+       WITHIN GROUP(ORDER BY a.DS_DESJEJUM DESC)DS_DESJEJUM
+      ,LISTAGG(a.DS_COLACAO) 
+       WITHIN GROUP(ORDER BY a.DS_COLACAO DESC) DS_COLACAO    
+      ,LISTAGG(a.DS_ALMOCO) 
+       WITHIN GROUP(ORDER BY a.DS_ALMOCO DESC)  DS_ALMOCO
+      ,LISTAGG(a.DS_LANCHE) 
+       WITHIN GROUP(ORDER BY a.DS_LANCHE DESC)  DS_LANCHE
+      ,LISTAGG(a.DS_JANTAR) 
+       WITHIN GROUP(ORDER BY a.DS_JANTAR DESC)  DS_JANTAR
+      ,LISTAGG(a.DS_CEIA) 
+       WITHIN GROUP(ORDER BY a.DS_CEIA DESC)    DS_CEIA
+      ,LISTAGG(a.DS_OBS) 
+       WITHIN GROUP(ORDER BY a.DS_OBS DESC)     DS_OBS
+      ,CD_UNID_INT
+      ,DS_UNID_INT
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DT_ATENDIMENTO
+      ,CD_ATENDIMENTO
+      ,NR_IDADE
+      ,DS_CID
+      ,DS_RESUMO
+      ,Decode(SN_ACOMPANHANTE,'N','Não Possui Acompanhante','S','Possui Acompanhante') SN_ACOMPANHANTE
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+      ,DS_TIPO_DIETA
+
+FROM (
+      Select LEITO.CD_UNID_INT                    CD_UNID_INT
+            ,UNID_INT.DS_UNID_INT                 DS_UNID_INT
+            ,PACIENTE.CD_PACIENTE                 CD_PACIENTE
+            ,PACIENTE.NM_PACIENTE                 NM_PACIENTE
+            ,ATENDIME.DT_ATENDIMENTO              DT_ATENDIMENTO
+            ,ATENDIME.CD_ATENDIMENTO              CD_ATENDIMENTO
+            ,PACK_INTERNAMENTO.RETORNA_IDADE(PACIENTE.DT_NASCIMENTO,SysDate)  NR_IDADE
+            ,CID.DS_CID                           DS_CID
+            ,LEITO.DS_RESUMO                      DS_RESUMO
+            ,ATENDIME.SN_ACOMPANHANTE             SN_ACOMPANHANTE
+            ,fnc_mv_recupera_data_hora(ATENDIME.DT_ATENDIMENTO,ATENDIME.HR_ATENDIMENTO) DTHR_INTERNACAO
+            ,TIPO_DIETA.DS_TIPO_DIETA             DS_TIPO_DIETA
+            ,ITPRE_MED.DS_ITPRE_MED               OBS_MED
+            ,TIPO_REFEICAO.DS_TIPO_REFEICAO       DS_TIPO_REFEICAO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '10' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- DESJEJUM
+              ELSE NULL 
+              END DS_DESJEJUM
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '11' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- COLACAO
+              ELSE NULL 
+              END DS_COLACAO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '12' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- ALMOCO
+              ELSE NULL 
+              END DS_ALMOCO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '13' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- LANCHE
+              ELSE NULL 
+              END DS_LANCHE
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '14' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- JANTAR
+              ELSE NULL 
+              END DS_JANTAR
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '15' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- CEIA
+              ELSE NULL 
+              END DS_CEIA
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '16' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- OBS
+              ELSE NULL 
+              END DS_OBS
+
+
+        FROM DBAMV.ATENDIME
+        JOIN DBAMV.PACIENTE
+          ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+        LEFT JOIN DBAMV.CID
+          ON ATENDIME.CD_CID = CID.CD_CID
+        LEFT JOIN DBAMV.LEITO
+          ON ATENDIME.CD_LEITO = LEITO.CD_LEITO
+        LEFT JOIN DBAMV.UNID_INT
+          ON LEITO.CD_UNID_INT = UNID_INT.CD_UNID_INT
+        LEFT JOIN DBAMV.FICHA_NUTRICAO
+          ON ATENDIME.CD_ATENDIMENTO = FICHA_NUTRICAO.CD_ATENDIMENTO
+        JOIN (SELECT Max(ITPRE_MED.CD_ITPRE_MED) CD_ITPRE_MED
+                    ,PRE_MED.CD_ATENDIMENTO
+                FROM PRE_MED
+                JOIN ITPRE_MED 
+                  ON PRE_MED.CD_PRE_MED = ITPRE_MED.CD_PRE_MED
+                WHERE ITPRE_MED.CD_TIP_ESQ in ('DIE','DET','DIP')
+              GROUP BY PRE_MED.CD_ATENDIMENTO
+              ) MAXDIETA
+          ON ATENDIME.CD_ATENDIMENTO = MAXDIETA.CD_ATENDIMENTO
+        JOIN DBAMV.ITPRE_MED
+          ON ITPRE_MED.CD_ITPRE_MED = MAXDIETA.CD_ITPRE_MED
+        JOIN DBAMV.TIP_PRESC
+          ON TIP_PRESC.CD_TIP_PRESC = ITPRE_MED.CD_TIP_PRESC
+        left JOIN DBAMV.TIPO_DIETA
+          ON TIP_PRESC.CD_TIPO_DIETA = TIPO_DIETA.CD_TIPO_DIETA
+        left JOIN DBAMV.TIPO_REFEICAO
+          ON FICHA_NUTRICAO.CD_TIPO_REFEICAO = TIPO_REFEICAO.CD_TIPO_REFEICAO
+        WHERE ATENDIME.TP_ATENDIMENTO = 'I'
+          AND ATENDIME.DT_ALTA IS NULL   
+      ORDER BY ATENDIME.CD_ATENDIMENTO
+              ,TIPO_REFEICAO.CD_TIPO_REFEICAO
+     )A
+where {V_VAR}
+ AND DS_UNID_INT IN ({V_UNID_AUX})
+GROUP BY  CD_UNID_INT
+      ,DS_UNID_INT
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DT_ATENDIMENTO
+      ,CD_ATENDIMENTO
+      ,NR_IDADE
+      ,DS_CID
+      ,DS_RESUMO
+      ,SN_ACOMPANHANTE
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+      ,DS_TIPO_DIETA</SqlCommand><Type>Table</Type></FONTE_V1><UNID_INT Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias/><Columns count="1" isList="true"><value>DS_UNID_INT,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>UNID_INT</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT DS_UNID_INT FROM DBAMV.UNID_INT WHERE UNID_INT.SN_ATIVO = 'S' AND UNID_INT.TP_UNID_INT = 'I'
+</SqlCommand><Type>Table</Type></UNID_INT><FONTE Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>FONTE</Alias><Columns count="20" isList="true"><value>CD_ATENDIMENTO,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_UNID_INT,System.Int32</value><value>DS_ALMOCO,System.String</value><value>DS_CEIA,System.String</value><value>DS_CID,System.String</value><value>DS_COLACAO,System.String</value><value>DS_DESJEJUM,System.String</value><value>DS_JANTAR,System.String</value><value>DS_LANCHE,System.String</value><value>DS_OBS,System.String</value><value>DS_RESUMO,System.String</value><value>DS_TIPO_DIETA,System.String</value><value>DS_UNID_INT,System.String</value><value>DTHR_INTERNACAO,System.DateTime</value><value>DT_ATENDIMENTO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>NR_IDADE,System.String</value><value>OBS_MED,System.String</value><value>SN_ACOMPANHANTE,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>FONTE</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       CD_ATENDIMENTO
+      ,DT_ATENDIMENTO
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DS_TIPO_DIETA
+      ,LISTAGG(a.DS_DESJEJUM) 
+       WITHIN GROUP(ORDER BY a.DS_DESJEJUM DESC)DS_DESJEJUM
+      ,LISTAGG(a.DS_COLACAO) 
+       WITHIN GROUP(ORDER BY a.DS_COLACAO DESC) DS_COLACAO    
+      ,LISTAGG(a.DS_ALMOCO) 
+       WITHIN GROUP(ORDER BY a.DS_ALMOCO DESC)  DS_ALMOCO
+      ,LISTAGG(a.DS_LANCHE) 
+       WITHIN GROUP(ORDER BY a.DS_LANCHE DESC)  DS_LANCHE
+      ,LISTAGG(a.DS_JANTAR) 
+       WITHIN GROUP(ORDER BY a.DS_JANTAR DESC)  DS_JANTAR
+      ,LISTAGG(a.DS_CEIA) 
+       WITHIN GROUP(ORDER BY a.DS_CEIA DESC)    DS_CEIA
+      ,LISTAGG(a.DS_OBS) 
+       WITHIN GROUP(ORDER BY a.DS_OBS DESC)     DS_OBS
+      ,CD_UNID_INT
+      ,DS_UNID_INT                                                                  
+      ,NR_IDADE
+      ,DS_CID                                                                       
+      ,DS_RESUMO
+      ,Decode(SN_ACOMPANHANTE,'N','Não Possui Acompanhante','S','Possui Acompanhante') SN_ACOMPANHANTE
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+
+FROM (
+      Select LEITO.CD_UNID_INT                    CD_UNID_INT                                                      
+            ,UNID_INT.DS_UNID_INT                 DS_UNID_INT
+            ,PACIENTE.CD_PACIENTE                 CD_PACIENTE
+            ,PACIENTE.NM_PACIENTE                 NM_PACIENTE
+            ,ATENDIME.DT_ATENDIMENTO              DT_ATENDIMENTO
+            ,ATENDIME.CD_ATENDIMENTO              CD_ATENDIMENTO
+            ,PACK_INTERNAMENTO.RETORNA_IDADE(PACIENTE.DT_NASCIMENTO,SysDate)  NR_IDADE
+            ,CID.DS_CID                           DS_CID
+            ,LEITO.DS_RESUMO                      DS_RESUMO
+            ,ATENDIME.SN_ACOMPANHANTE             SN_ACOMPANHANTE
+            ,fnc_mv_recupera_data_hora(ATENDIME.DT_ATENDIMENTO,ATENDIME.HR_ATENDIMENTO) DTHR_INTERNACAO
+            ,ITEM_PRESC.DS_TIPO_DIETA             DS_TIPO_DIETA
+            ,TIPO_REFEICAO.DS_TIPO_REFEICAO       DS_TIPO_REFEICAO
+            ,OBS_MED
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '10' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- DESJEJUM
+              ELSE NULL 
+              END DS_DESJEJUM
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '11' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- COLACAO
+              ELSE NULL 
+              END DS_COLACAO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '12' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- ALMOCO
+              ELSE NULL 
+              END DS_ALMOCO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '13' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- LANCHE
+              ELSE NULL 
+              END DS_LANCHE
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '14' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- JANTAR
+              ELSE NULL 
+              END DS_JANTAR
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '15' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- CEIA
+              ELSE NULL 
+              END DS_CEIA
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '16' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- OBS
+              ELSE NULL 
+              END DS_OBS
+
+        FROM DBAMV.ATENDIME
+        JOIN DBAMV.PACIENTE
+          ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+        LEFT JOIN DBAMV.CID
+          ON ATENDIME.CD_CID = CID.CD_CID
+        LEFT JOIN DBAMV.LEITO
+          ON ATENDIME.CD_LEITO = LEITO.CD_LEITO
+        LEFT JOIN DBAMV.UNID_INT
+          ON LEITO.CD_UNID_INT = UNID_INT.CD_UNID_INT
+        LEFT JOIN DBAMV.FICHA_NUTRICAO
+          ON ATENDIME.CD_ATENDIMENTO = FICHA_NUTRICAO.CD_ATENDIMENTO
+        JOIN (SELECT LISTAGG(TIPO_DIETA.DS_TIPO_DIETA, ', ') 
+                      WITHIN GROUP(ORDER BY TIPO_DIETA.DS_TIPO_DIETA DESC) DS_TIPO_DIETA
+                    ,LISTAGG(ITPRE_MED.DS_ITPRE_MED, ', ') 
+                      WITHIN GROUP(ORDER BY ITPRE_MED.DS_ITPRE_MED DESC)   OBS_MED
+                    ,PRE_MED.CD_ATENDIMENTO
+                 FROM DBAMV.ITPRE_MED
+                 JOIN DBAMV.PRE_MED
+                   ON PRE_MED.CD_PRE_MED = ITPRE_MED.CD_PRE_MED
+                  AND ITPRE_MED.CD_TIP_ESQ IN ('DIE','DET', 'DIP')
+                  AND (ITPRE_MED.SN_CANCELADO IS NULL OR ITPRE_MED.SN_CANCELADO = 'N')
+                 JOIN DBAMV.TIP_PRESC
+                   ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC 
+                 LEFT JOIN DBAMV.TIPO_DIETA
+                   ON TIP_PRESC.CD_TIPO_DIETA = TIPO_DIETA.CD_TIPO_DIETA
+                WHERE SYSDATE BETWEEN PRE_MED.HR_PRE_MED AND PRE_MED.DT_VALIDADE
+                  AND PRE_MED.FL_IMPRESSO = 'S'
+                GROUP BY PRE_MED.CD_ATENDIMENTO
+              ) ITEM_PRESC
+          ON ATENDIME.CD_ATENDIMENTO = ITEM_PRESC.CD_ATENDIMENTO 
+        left JOIN DBAMV.TIPO_REFEICAO
+          ON FICHA_NUTRICAO.CD_TIPO_REFEICAO = TIPO_REFEICAO.CD_TIPO_REFEICAO
+        WHERE ATENDIME.TP_ATENDIMENTO = 'I'
+          AND ATENDIME.DT_ALTA IS NULL
+          AND UNID_INT.CD_UNID_INT NOT IN (13)
+     ORDER BY ATENDIME.CD_ATENDIMENTO
+              ,TIPO_REFEICAO.CD_TIPO_REFEICAO
+     )A
+WHERE {V_VAR}
+  AND DS_UNID_INT IN ({V_UNID_AUX})
+
+GROUP BY  CD_UNID_INT
+      ,DS_UNID_INT
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DT_ATENDIMENTO
+      ,CD_ATENDIMENTO
+      ,NR_IDADE
+      ,DS_CID                                                                                                                                                   
+      ,DS_RESUMO                                                                       
+      ,SN_ACOMPANHANTE                                                                                               
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+      ,DS_TIPO_DIETA
+ORDER BY NM_PACIENTE     </SqlCommand><Type>Table</Type></FONTE><MATERNIDADE Ref="6" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>MATERNIDADE</Alias><Columns count="20" isList="true"><value>CD_ATENDIMENTO,System.Int32</value><value>CD_PACIENTE,System.Int32</value><value>CD_UNID_INT,System.Int32</value><value>DS_ALMOCO,System.String</value><value>DS_CEIA,System.String</value><value>DS_CID,System.String</value><value>DS_COLACAO,System.String</value><value>DS_DESJEJUM,System.String</value><value>DS_JANTAR,System.String</value><value>DS_LANCHE,System.String</value><value>DS_OBS,System.String</value><value>DS_RESUMO,System.String</value><value>DS_TIPO_DIETA,System.String</value><value>DS_UNID_INT,System.String</value><value>DTHR_INTERNACAO,System.DateTime</value><value>DT_ATENDIMENTO,System.DateTime</value><value>NM_PACIENTE,System.String</value><value>NR_IDADE,System.String</value><value>OBS_MED,System.String</value><value>SN_ACOMPANHANTE,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>MATERNIDADE</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT 
+       CD_ATENDIMENTO
+      ,DT_ATENDIMENTO
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DS_TIPO_DIETA
+      ,LISTAGG(a.DS_DESJEJUM) 
+       WITHIN GROUP(ORDER BY a.DS_DESJEJUM DESC)DS_DESJEJUM
+      ,LISTAGG(a.DS_COLACAO) 
+       WITHIN GROUP(ORDER BY a.DS_COLACAO DESC) DS_COLACAO    
+      ,LISTAGG(a.DS_ALMOCO) 
+       WITHIN GROUP(ORDER BY a.DS_ALMOCO DESC)  DS_ALMOCO
+      ,LISTAGG(a.DS_LANCHE) 
+       WITHIN GROUP(ORDER BY a.DS_LANCHE DESC)  DS_LANCHE
+      ,LISTAGG(a.DS_JANTAR) 
+       WITHIN GROUP(ORDER BY a.DS_JANTAR DESC)  DS_JANTAR
+      ,LISTAGG(a.DS_CEIA) 
+       WITHIN GROUP(ORDER BY a.DS_CEIA DESC)    DS_CEIA
+      ,LISTAGG(a.DS_OBS) 
+       WITHIN GROUP(ORDER BY a.DS_OBS DESC)     DS_OBS
+      ,CD_UNID_INT
+      ,DS_UNID_INT                                                                  
+      ,NR_IDADE
+      ,DS_CID                                                                       
+      ,DS_RESUMO
+      ,Decode(SN_ACOMPANHANTE,'N','Não Possui Acompanhante','S','Possui Acompanhante') SN_ACOMPANHANTE
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+
+FROM (
+      Select LEITO.CD_UNID_INT                    CD_UNID_INT                                                      
+            ,UNID_INT.DS_UNID_INT                 DS_UNID_INT
+            ,PACIENTE.CD_PACIENTE                 CD_PACIENTE
+            ,PACIENTE.NM_PACIENTE                 NM_PACIENTE
+            ,ATENDIME.DT_ATENDIMENTO              DT_ATENDIMENTO
+            ,ATENDIME.CD_ATENDIMENTO              CD_ATENDIMENTO
+            ,PACK_INTERNAMENTO.RETORNA_IDADE(PACIENTE.DT_NASCIMENTO,SysDate)  NR_IDADE
+            ,CID.DS_CID                           DS_CID
+            ,LEITO.DS_RESUMO                      DS_RESUMO
+            ,ATENDIME.SN_ACOMPANHANTE             SN_ACOMPANHANTE
+            ,fnc_mv_recupera_data_hora(ATENDIME.DT_ATENDIMENTO,ATENDIME.HR_ATENDIMENTO) DTHR_INTERNACAO
+            ,Nvl(ITEM_PRESC.DS_TIPO_DIETA,ITEM_PRESC_ANTERIOR.DS_TIPO_DIETA)             DS_TIPO_DIETA
+            ,TIPO_REFEICAO.DS_TIPO_REFEICAO       DS_TIPO_REFEICAO
+            ,Nvl(ITEM_PRESC.OBS_MED, ITEM_PRESC_ANTERIOR.OBS_MED)                         OBS_MED
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '10' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- DESJEJUM
+              ELSE NULL 
+              END DS_DESJEJUM
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '11' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- COLACAO
+              ELSE NULL 
+              END DS_COLACAO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '12' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- ALMOCO
+              ELSE NULL 
+              END DS_ALMOCO
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '13' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- LANCHE
+              ELSE NULL 
+              END DS_LANCHE
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '14' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- JANTAR
+              ELSE NULL 
+              END DS_JANTAR
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '15' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- CEIA
+              ELSE NULL 
+              END DS_CEIA
+            ,CASE (TIPO_REFEICAO.CD_TIPO_REFEICAO)
+              WHEN '16' THEN FICHA_NUTRICAO.DS_OBSERVACAO -- OBS
+              ELSE NULL 
+              END DS_OBS
+
+        FROM DBAMV.ATENDIME
+        JOIN DBAMV.PACIENTE
+          ON ATENDIME.CD_PACIENTE = PACIENTE.CD_PACIENTE
+        LEFT JOIN DBAMV.CID
+          ON ATENDIME.CD_CID = CID.CD_CID
+        LEFT JOIN DBAMV.LEITO
+          ON ATENDIME.CD_LEITO = LEITO.CD_LEITO
+        LEFT JOIN DBAMV.UNID_INT
+          ON LEITO.CD_UNID_INT = UNID_INT.CD_UNID_INT
+        LEFT JOIN DBAMV.FICHA_NUTRICAO
+          ON ATENDIME.CD_ATENDIMENTO = FICHA_NUTRICAO.CD_ATENDIMENTO
+        left JOIN (SELECT LISTAGG(TIPO_DIETA.DS_TIPO_DIETA, ', ') 
+                      WITHIN GROUP(ORDER BY TIPO_DIETA.DS_TIPO_DIETA DESC) DS_TIPO_DIETA
+                    ,LISTAGG(ITPRE_MED.DS_ITPRE_MED, ', ') 
+                      WITHIN GROUP(ORDER BY ITPRE_MED.DS_ITPRE_MED DESC)   OBS_MED
+                    ,PRE_MED.CD_ATENDIMENTO
+                 FROM DBAMV.ITPRE_MED
+                 JOIN DBAMV.PRE_MED
+                   ON PRE_MED.CD_PRE_MED = ITPRE_MED.CD_PRE_MED
+                  AND ITPRE_MED.CD_TIP_ESQ IN ('DIE','DET', 'DIP')
+                  AND (ITPRE_MED.SN_CANCELADO IS NULL OR ITPRE_MED.SN_CANCELADO = 'N')
+                 JOIN DBAMV.TIP_PRESC
+                   ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC 
+                 LEFT JOIN DBAMV.TIPO_DIETA
+                   ON TIP_PRESC.CD_TIPO_DIETA = TIPO_DIETA.CD_TIPO_DIETA
+                WHERE SYSDATE BETWEEN PRE_MED.HR_PRE_MED AND PRE_MED.DT_VALIDADE
+                  AND PRE_MED.FL_IMPRESSO = 'S'
+                GROUP BY PRE_MED.CD_ATENDIMENTO
+              ) ITEM_PRESC
+          ON ATENDIME.CD_ATENDIMENTO = ITEM_PRESC.CD_ATENDIMENTO
+        left JOIN (SELECT LISTAGG(TIPO_DIETA.DS_TIPO_DIETA, ', ') 
+                          WITHIN GROUP(ORDER BY TIPO_DIETA.DS_TIPO_DIETA DESC) DS_TIPO_DIETA
+                          ,LISTAGG(ITPRE_MED.DS_ITPRE_MED, ', ') 
+                            WITHIN GROUP(ORDER BY ITPRE_MED.DS_ITPRE_MED DESC)   OBS_MED
+                          ,PRE_MED.CD_ATENDIMENTO
+                        FROM DBAMV.ITPRE_MED
+                        JOIN DBAMV.PRE_MED
+                          ON PRE_MED.CD_PRE_MED = ITPRE_MED.CD_PRE_MED
+                        AND ITPRE_MED.CD_TIP_ESQ IN ('DIE','DET', 'DIP')
+                        AND (ITPRE_MED.SN_CANCELADO IS NULL OR ITPRE_MED.SN_CANCELADO = 'N')
+                        JOIN DBAMV.TIP_PRESC
+                          ON ITPRE_MED.CD_TIP_PRESC = TIP_PRESC.CD_TIP_PRESC 
+                        LEFT JOIN DBAMV.TIPO_DIETA
+                          ON TIP_PRESC.CD_TIPO_DIETA = TIPO_DIETA.CD_TIPO_DIETA
+                      WHERE Trunc(PRE_MED.DT_PRE_MED) != trunc(SYSDATE)
+                        AND (PRE_MED.CD_PRE_MED,PRE_MED.CD_ATENDIMENTO) IN (SELECT Max(ITPRE_MED.CD_PRE_MED) CD_PRE_MED
+                                                                                  ,PRE_MED.CD_ATENDIMENTO
+                                                                              FROM DBAMV.ITPRE_MED 
+                                                                              JOIN DBAMV.PRE_MED
+                                                                                ON ITPRE_MED.CD_PRE_MED = PRE_MED.CD_PRE_MED
+                                                                              JOIN DBAMV.TIP_PRESC
+                                                                                ON TIP_PRESC.CD_TIP_PRESC = ITPRE_MED.CD_TIP_PRESC
+                                                                              JOIN DBAMV.ATENDIME
+                                                                                ON PRE_MED.CD_ATENDIMENTO = ATENDIME.CD_ATENDIMENTO
+                                                                              WHERE TIP_PRESC.CD_TIP_ESQ IN ('DIE','DET', 'DIP')
+                                                                                AND ATENDIME.DT_ALTA IS NULL 
+                                                                                AND Trunc(PRE_MED.DT_PRE_MED) != trunc(SYSDATE)
+                                                                                AND ATENDIME.TP_ATENDIMENTO = 'I'
+                                                                                AND PRE_MED.FL_IMPRESSO = 'S'
+                                                                                AND PRE_MED.CD_SETOR = 83
+                                                                            GROUP BY PRE_MED.CD_ATENDIMENTO
+                                                                            ) 
+                        AND PRE_MED.FL_IMPRESSO = 'S'
+                      GROUP BY PRE_MED.CD_ATENDIMENTO
+                   ) ITEM_PRESC_ANTERIOR
+          ON ATENDIME.CD_ATENDIMENTO = ITEM_PRESC_ANTERIOR.CD_ATENDIMENTO      
+        left JOIN DBAMV.TIPO_REFEICAO
+          ON FICHA_NUTRICAO.CD_TIPO_REFEICAO = TIPO_REFEICAO.CD_TIPO_REFEICAO
+        WHERE ATENDIME.TP_ATENDIMENTO = 'I'
+          AND ATENDIME.DT_ALTA IS NULL
+          AND PACIENTE.NM_PACIENTE  NOT LIKE 'RN %' 
+          AND UNID_INT.CD_UNID_INT = 13             
+      ORDER BY ATENDIME.CD_ATENDIMENTO
+              ,TIPO_REFEICAO.CD_TIPO_REFEICAO
+     
+     )A
+WHERE {V_VAR}
+  AND DS_UNID_INT IN ({V_UNID_AUX})
+
+GROUP BY  CD_UNID_INT
+      ,DS_UNID_INT
+      ,DS_RESUMO
+      ,CD_PACIENTE
+      ,NM_PACIENTE
+      ,DT_ATENDIMENTO
+      ,CD_ATENDIMENTO
+      ,NR_IDADE
+      ,DS_CID                                                                                                                                                   
+      ,DS_RESUMO                                                                       
+      ,SN_ACOMPANHANTE                                                                                               
+      ,DTHR_INTERNACAO
+      ,OBS_MED
+      ,DS_TIPO_DIETA
+ORDER BY DS_RESUMO</SqlCommand><Type>Table</Type></MATERNIDADE></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="3" isList="true"><value>,V_VAR,V_VAR,,System.String,_x0031__x003d_1,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_LISTA_UNID,Selecione_x0020_Unidades_x0020_de_x0020_Internação,,Stimulsoft.Report.StringList,,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_UNID_INT_x002e_DS_UNID_INT_x003c__x002f_KeysColumn_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_UNID_INT_x002e_DS_UNID_INT_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_UNID_AUX,V_UNID_AUX,,System.String,V_LISTA_UNID_x002e_Count_x0028__x0029__x0020__x003d__x003d__x0020_0_x0020__x003f__x0020__x0022__x0027__x0027__x0022__x0020__x003a__x0020_V_LISTA_UNID_x002e_ToQueryString_x0028__x0022__x0027__x0022__x0029_,True,True,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><MetaTags count="1" isList="true"><value>reportId,_x0031_17</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="7" isKey="true" type="Page"><Anchor>Top, Left</Anchor><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="12" isList="true"><PageHeaderBand1 Ref="8" isKey="true" type="PageHeaderBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,0.4,27.7,0.8</ClientRectangle><Components count="4" isList="true"><Text31 Ref="9" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.2,27.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,14,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text31</Name><Page isRef="7"/><Parent isRef="8"/><ShiftMode>None</ShiftMode><Text>Mapa das Dietas</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text31><Text32 Ref="10" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>25.8,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,6</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text32</Name><Page isRef="7"/><Parent isRef="8"/><ShiftMode>None</ShiftMode><Text>{PageNofM}&#13;
+Impresso em:</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text32><Text33 Ref="11" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>27,0.6,0.6,0.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,6</Font><Margins>0,0,0,0</Margins><Name>Text33</Name><Page isRef="7"/><Parent isRef="8"/><ShiftMode>None</ShiftMode><Text>{Time}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="12" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm</StringFormat></TextFormat></Text33><Text34 Ref="13" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>25.8,0.6,1.2,0.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,6</Font><Margins>0,0,0,0</Margins><Name>Text34</Name><Page isRef="7"/><Parent isRef="8"/><ShiftMode>None</ShiftMode><Text>{Today}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="14" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat></Text34></Components><Conditions count="0" isList="true"/><Name>PageHeaderBand1</Name><Page isRef="7"/><Parent isRef="7"/></PageHeaderBand1><GroupHeaderBand2 Ref="15" isKey="true" type="GroupHeaderBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,2,27.7,0.8</ClientRectangle><Components count="1" isList="true"><Text10 Ref="16" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0.2,0.2,14.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="7"/><Parent isRef="15"/><ShiftMode>None</ShiftMode><Text>Unidade de Internação: {FONTE.DS_UNID_INT}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text10></Components><Condition>{FONTE.DS_UNID_INT}</Condition><Conditions count="0" isList="true"/><KeepGroupTogether>True</KeepGroupTogether><Name>GroupHeaderBand2</Name><Page isRef="7"/><Parent isRef="7"/><PrintOnAllPages>True</PrintOnAllPages></GroupHeaderBand2><GroupHeaderBand1 Ref="17" isKey="true" type="GroupHeaderBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,3.6,27.7,1.8</ClientRectangle><Components count="22" isList="true"><Text2 Ref="18" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>1.6,0.6,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.CD_ATENDIMENTO}</Text><TextBrush>Black</TextBrush></Text2><Text4 Ref="19" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>4,0.6,6.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.NM_PACIENTE}</Text><TextBrush>Black</TextBrush></Text4><Text11 Ref="20" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,0.6,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_RESUMO}</Text><TextBrush>[0:0:0]</TextBrush></Text11><Text3 Ref="21" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>14.2,0.6,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.DTHR_INTERNACAO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="22" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm</StringFormat></TextFormat></Text3><Text12 Ref="23" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>12.6,0.6,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.DT_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="24" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat></Text12><Text13 Ref="25" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.2,0.6,3.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_TIPO_DIETA}</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text13><Text14 Ref="26" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.6,8.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.OBS_MED}</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text14><Text15 Ref="27" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>1.6,0.2,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>ea7d80c0bb8a43f980b452a3ec600d8e</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Atendimento</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text15><Text16 Ref="28" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>4,0.2,6.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>20008f0422534513851dafe21f9c5e3e</Guid><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Paciente</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text16><Text17 Ref="29" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,0.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>2b4ff4403f0e4d4491e17f24011d403b</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Leito</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text17><Text19 Ref="30" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>12.6,0.2,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>ca8bfa68a17e42799d3f811ea62cc5b5</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Dt.Internacao</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text19><Text20 Ref="31" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.2,0.2,3.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>e0cc2fe08bb04daba4b7ce05ce46a173</Guid><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Dieta</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text20><Text21 Ref="32" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.2,8.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>9eae3f8b86c84b13b93bd0d9b3c92dbe</Guid><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Obs Médica</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text21><Text18 Ref="33" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>7.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>4f598f7cda4544cbaf3863891e5b2cb8</Guid><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>COLAÇÃO</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text18><Text22 Ref="34" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>11.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b2de9f4d10444053b32416420a70cc79</Guid><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>ALMOÇO</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text22><Text23 Ref="35" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>3.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b6164aba61b0451db4f22cf9e08c183d</Guid><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>DESJEJUM</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text23><Text24 Ref="36" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>c8b3f5d5353645309a323d179dcffa05</Guid><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>LANCHE</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text24><Text25 Ref="37" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>23.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b878665d17bc4d629e7bf2c64dcbfb08</Guid><Margins>0,0,0,0</Margins><Name>Text25</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>CEIA</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text25><Text26 Ref="38" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>9a2b7fe1251249dd95c4f24072c4cfe7</Guid><Margins>0,0,0,0</Margins><Name>Text26</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>JANTAR</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text26><Text27 Ref="39" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>10.8,0.6,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text27</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>{FONTE.NR_IDADE}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text27><Text36 Ref="40" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>10.8,0.2,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>de57bca71be44cd38e1a31a8122047db</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text36</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><Text>Idade</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text36><HorizontalLinePrimitive1 Ref="41" isKey="true" type="HorizontalLinePrimitive"><Anchor>Top, Left</Anchor><ClientRectangle>3.4,1.75,24.2,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="42" isKey="true" type="Cap"><Color>Black</Color></EndCap><Name>HorizontalLinePrimitive1</Name><Page isRef="7"/><Parent isRef="17"/><ShiftMode>None</ShiftMode><StartCap Ref="43" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive1></Components><Condition>{FONTE.DS_RESUMO}</Condition><Conditions count="0" isList="true"/><KeepGroupTogether>True</KeepGroupTogether><Name>GroupHeaderBand1</Name><Page isRef="7"/><Parent isRef="7"/><PrintOnAllPages>True</PrintOnAllPages></GroupHeaderBand1><DataFONTE Ref="44" isKey="true" type="DataBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,6.2,27.7,1.4</ClientRectangle><ColumnDirection>DownThenAcross</ColumnDirection><Components count="6" isList="true"><Text1 Ref="45" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>7.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_COLACAO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text1><Text6 Ref="46" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>3.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_DESJEJUM}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text6><Text7 Ref="47" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_LANCHE}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text7><Text8 Ref="48" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>23.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_CEIA}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text8><Text9 Ref="49" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_JANTAR}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text9><Text5 Ref="50" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>11.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="7"/><Parent isRef="44"/><ShiftMode>None</ShiftMode><Text>{FONTE.DS_ALMOCO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text5></Components><Conditions count="0" isList="true"/><DataSourceName>FONTE</DataSourceName><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><Name>DataFONTE</Name><Page isRef="7"/><Parent isRef="7"/><Sort count="0" isList="true"/></DataFONTE><GroupFooterBand1 Ref="51" isKey="true" type="GroupFooterBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,8.4,27.7,0.6</ClientRectangle><Components count="3" isList="true"><Text28 Ref="52" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.2,0,8.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text28</Name><Page isRef="7"/><Parent isRef="51"/><ShiftMode>None</ShiftMode><Text>{FONTE.SN_ACOMPANHANTE}</Text><TextBrush>Black</TextBrush></Text28><Text29 Ref="53" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0.2,0,17,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text29</Name><Page isRef="7"/><Parent isRef="51"/><ShiftMode>None</ShiftMode><Text>OBS.Nutricionista: {FONTE.DS_OBS}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text29><HorizontalLinePrimitive2 Ref="54" isKey="true" type="HorizontalLinePrimitive"><Anchor>Top, Left</Anchor><ClientRectangle>0,0.6,27.6,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="55" isKey="true" type="Cap"><Color>Black</Color></EndCap><Name>HorizontalLinePrimitive2</Name><Page isRef="7"/><Parent isRef="51"/><ShiftMode>None</ShiftMode><Size>4</Size><StartCap Ref="56" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive2></Components><Conditions count="0" isList="true"/><Name>GroupFooterBand1</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand1><GroupFooterBand2 Ref="57" isKey="true" type="GroupFooterBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,9.8,27.7,0.6</ClientRectangle><Components count="1" isList="true"><Text30 Ref="58" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.2,7.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text30</Name><Page isRef="7"/><Parent isRef="57"/><ShiftMode>None</ShiftMode><Text>Total de Atendimentoes com Dietas na Unidade: {Count()}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text30></Components><Conditions count="0" isList="true"/><Name>GroupFooterBand2</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand2><GroupHeaderBand3 Ref="59" isKey="true" type="GroupHeaderBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,11.2,27.7,0.8</ClientRectangle><Components count="1" isList="true"><Text37 Ref="60" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0.2,0.2,14.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>5e658be4b1f540dd8cc76d7c6ac3e13d</Guid><Margins>0,0,0,0</Margins><Name>Text37</Name><Page isRef="7"/><Parent isRef="59"/><ShiftMode>None</ShiftMode><Text>Unidade de Internação: {MATERNIDADE.DS_UNID_INT}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text37></Components><Condition>{MATERNIDADE.DS_UNID_INT}</Condition><Conditions count="0" isList="true"/><KeepGroupTogether>True</KeepGroupTogether><Name>GroupHeaderBand3</Name><Page isRef="7"/><Parent isRef="7"/><PrintOnAllPages>True</PrintOnAllPages></GroupHeaderBand3><GroupHeaderBand4 Ref="61" isKey="true" type="GroupHeaderBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,12.8,27.7,1.8</ClientRectangle><Components count="21" isList="true"><Text38 Ref="62" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>1.6,0.6,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>692412a7b398457caa8226e806dc87ab</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text38</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.CD_ATENDIMENTO}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text38><Text39 Ref="63" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>4,0.6,6.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>7d9d6ccf68d846c180b7fd0e193b4fcb</Guid><Margins>0,0,0,0</Margins><Name>Text39</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.NM_PACIENTE}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text39><Text40 Ref="64" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,0.6,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>a9ae525aab5f4ed99d5fc03697a01552</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text40</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_RESUMO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text40><Text41 Ref="65" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>14.2,0.6,0.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>c9ae7b5b59a64ffdb112c1f8b5ca37c9</Guid><Margins>0,0,0,0</Margins><Name>Text41</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DTHR_INTERNACAO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="66" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm</StringFormat></TextFormat><Type>DataColumn</Type></Text41><Text42 Ref="67" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>12.6,0.6,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>57a0c4afef8c4aefb01ee2283e14f551</Guid><Margins>0,0,0,0</Margins><Name>Text42</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DT_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="68" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><Type>Expression</Type></Text42><Text43 Ref="69" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.2,0.6,3.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>c7acf3a14f1a41fe81230bf08d184620</Guid><Margins>0,0,0,0</Margins><Name>Text43</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_TIPO_DIETA}</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text43><Text44 Ref="70" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.6,8.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>5e034e804c7b4e04a8af106d0916185d</Guid><Margins>0,0,0,0</Margins><Name>Text44</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.OBS_MED}</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text44><Text45 Ref="71" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>1.6,0.2,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>abefa0334694455ea1bafa548b8dd084</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text45</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Atendimento</Text><TextBrush>Black</TextBrush></Text45><Text46 Ref="72" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>4,0.2,6.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>49e9bb70a17b42f1b591b6fee71b2db6</Guid><Margins>0,0,0,0</Margins><Name>Text46</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Paciente</Text><TextBrush>Black</TextBrush></Text46><Text47 Ref="73" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,0.2,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>093feae97fa24f2399ffd956ce56b2b8</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text47</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Leito</Text><TextBrush>[0:0:0]</TextBrush></Text47><Text48 Ref="74" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>12.6,0.2,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>b7e50769c3ba4ccb9c311bb2fcdb2660</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text48</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Dt.Internacao</Text><TextBrush>[0:0:0]</TextBrush></Text48><Text49 Ref="75" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.2,0.2,3.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>839b039a20b94148b91f8b70ae2095e0</Guid><Margins>0,0,0,0</Margins><Name>Text49</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Dieta</Text><TextBrush>[0:0:0]</TextBrush></Text49><Text50 Ref="76" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.2,8.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>93bdbb5aea9b4941b99ac61d842e6df4</Guid><Margins>0,0,0,0</Margins><Name>Text50</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Obs Médica</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text50><Text51 Ref="77" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>7.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>e083782745e84625895c4d54a108bc24</Guid><Margins>0,0,0,0</Margins><Name>Text51</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>COLAÇÃO</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text51><Text52 Ref="78" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>11.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>1b0bf1fbb24e46a1b545eacdeb21b46b</Guid><Margins>0,0,0,0</Margins><Name>Text52</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>ALMOÇO</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text52><Text53 Ref="79" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>3.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>cc59dc33f00f479b888f193f3a5e4ea2</Guid><Margins>0,0,0,0</Margins><Name>Text53</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>DESJEJUM</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text53><Text54 Ref="80" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>73e25335457444b881c70eaa9c58ee77</Guid><Margins>0,0,0,0</Margins><Name>Text54</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>LANCHE</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text54><Text55 Ref="81" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>23.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>9153121c287e493db56cd6d063ddd58c</Guid><Margins>0,0,0,0</Margins><Name>Text55</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>CEIA</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text55><Text56 Ref="82" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.8,1.4,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>575804ffd7fb4677b8ba90530a0f3699</Guid><Margins>0,0,0,0</Margins><Name>Text56</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>JANTAR</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions></Text56><Text57 Ref="83" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>10.8,0.6,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>ed90eb6bbc5143abac21b4d31c158bab</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text57</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.NR_IDADE}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text57><Text58 Ref="84" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>10.8,0.2,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,9,Bold</Font><Guid>1f4d9ce241694c0782729fc3aeb6d8fa</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text58</Name><Page isRef="7"/><Parent isRef="61"/><ShiftMode>None</ShiftMode><Text>Idade</Text><TextBrush>[0:0:0]</TextBrush></Text58></Components><Condition>{MATERNIDADE.DS_RESUMO}</Condition><Conditions count="0" isList="true"/><Guid>f6ecb771901b49a1bc4f102e6c36dbe0</Guid><KeepGroupTogether>True</KeepGroupTogether><Name>GroupHeaderBand4</Name><Page isRef="7"/><Parent isRef="7"/><PrintOnAllPages>True</PrintOnAllPages></GroupHeaderBand4><DataMATERNIDADE Ref="85" isKey="true" type="DataBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,15.4,27.7,1.4</ClientRectangle><Components count="6" isList="true"><Text59 Ref="86" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>7.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>818e89112c964a3c98a232f8d1f1d932</Guid><Margins>0,0,0,0</Margins><Name>Text59</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_COLACAO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text59><Text60 Ref="87" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>3.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>70375cbe704c404a86f6066348ebfd33</Guid><Margins>0,0,0,0</Margins><Name>Text60</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_DESJEJUM}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text60><Text61 Ref="88" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>15.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>7857660f0b0c4a658165cf7776f9467b</Guid><Margins>0,0,0,0</Margins><Name>Text61</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_LANCHE}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text61><Text62 Ref="89" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>23.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>a78f654f9696427cad97df9ad65ee7e5</Guid><Margins>0,0,0,0</Margins><Name>Text62</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_CEIA}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text62><Text63 Ref="90" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>f966b4bfb8cc4c60976d65767a9d8b01</Guid><Margins>0,0,0,0</Margins><Name>Text63</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_JANTAR}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text63><Text64 Ref="91" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>11.8,0,3.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>a90697692c044c7abe5082a4e980a07a</Guid><Margins>0,0,0,0</Margins><Name>Text64</Name><Page isRef="7"/><Parent isRef="85"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.DS_ALMOCO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type></Text64></Components><Conditions count="0" isList="true"/><DataSourceName>MATERNIDADE</DataSourceName><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><Name>DataMATERNIDADE</Name><Page isRef="7"/><Parent isRef="7"/><Sort count="0" isList="true"/></DataMATERNIDADE><GroupFooterBand3 Ref="92" isKey="true" type="GroupFooterBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,17.6,27.7,0.6</ClientRectangle><Components count="3" isList="true"><Text65 Ref="93" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19.2,0,8.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>c814221f87e44445bc299360a1abf880</Guid><Margins>0,0,0,0</Margins><Name>Text65</Name><Page isRef="7"/><Parent isRef="92"/><ShiftMode>None</ShiftMode><Text>{MATERNIDADE.SN_ACOMPANHANTE}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text65><Text66 Ref="94" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0.2,0,17,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>48d49a81546648c385fdd79e0c6fc7da</Guid><Margins>0,0,0,0</Margins><Name>Text66</Name><Page isRef="7"/><Parent isRef="92"/><ShiftMode>None</ShiftMode><Text>OBS.Nutricionista: {MATERNIDADE.DS_OBS}</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text66><HorizontalLinePrimitive3 Ref="95" isKey="true" type="HorizontalLinePrimitive"><Anchor>Top, Left</Anchor><ClientRectangle>0,0.6,27.6,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="96" isKey="true" type="Cap"><Color>Black</Color></EndCap><Guid>e2b031626ab64ba197e75a8a915e3d4f</Guid><Name>HorizontalLinePrimitive3</Name><Page isRef="7"/><Parent isRef="92"/><ShiftMode>None</ShiftMode><Size>4</Size><StartCap Ref="97" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive3></Components><Conditions count="0" isList="true"/><Guid>79aac1bc14574ef593d1a663e9a6b11c</Guid><Name>GroupFooterBand3</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand3><GroupFooterBand4 Ref="98" isKey="true" type="GroupFooterBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,19,27.7,0.6</ClientRectangle><Components count="1" isList="true"><Text67 Ref="99" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>19,0.2,7.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>d15fe164245b41c893e542d33d2d6097</Guid><Margins>0,0,0,0</Margins><Name>Text67</Name><Page isRef="7"/><Parent isRef="98"/><ShiftMode>None</ShiftMode><Text>Total de Atendimentoes com Dietas na Unidade: {Count()}</Text><TextBrush>[0:0:0]</TextBrush></Text67></Components><Conditions count="0" isList="true"/><Guid>dff3c6df4ae241cb9a3c84fdda870b2b</Guid><Name>GroupFooterBand4</Name><Page isRef="7"/><Parent isRef="7"/></GroupFooterBand4><FooterBand1 Ref="100" isKey="true" type="FooterBand"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>0,20.4,27.7,0.8</ClientRectangle><Components count="1" isList="true"><Text35 Ref="101" isKey="true" type="Text"><Anchor>Top, Left</Anchor><Brush>Transparent</Brush><ClientRectangle>20.2,0.2,7.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>8f48109e7d0b4335b35f0f0befd5e734</Guid><Margins>0,0,0,0</Margins><Name>Text35</Name><Page isRef="7"/><Parent isRef="100"/><ShiftMode>None</ShiftMode><Text>Total GERAL de Atendimentos com Dietas: {Count()}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text35></Components><Conditions count="0" isList="true"/><Name>FooterBand1</Name><Page isRef="7"/><Parent isRef="7"/></FooterBand1></Components><Conditions count="0" isList="true"/><Guid>4c71d9b7b97e425d807640aa89562a7b</Guid><Margins>1,1,1,1</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Orientation>Landscape</Orientation><Page isRef="7"/><PageHeight>21</PageHeight><PageWidth>29.7</PageWidth><Report isRef="0"/><Watermark Ref="102" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="103" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>05/26/2023 03:33:55 PM</ReportChanged><ReportCreated>01/10/2023 02:46:41 PM</ReportCreated><ReportFile>Mapa de Dietas v2</ReportFile><ReportGuid>a05363d7738c4590826e725891f35347</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2021.3.7 from 05 August 2021, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>

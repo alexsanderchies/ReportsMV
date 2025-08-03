@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbKZKMZ2ooXbE2hE+0CzCo0oQQDFTdN18W3Vveo9LL/YePMt1Uu6xf9LaPTkIblj2VTLzd1Ku8VqKCmA5cTrCtqyjwlPcULN8QBt3OHE6ELv0PWl61migfNE3Z1NzOuq03D3YE5r89lgALX46oQlr+KywwlPapMB6ij53OhcuQ7SerWNUGyRBeMooQjKPeK7017XL/8Fw1lPTe3cdG0tRt9WzUzVStjNa01V4PrcqBLwbmlsXkqp6ENLzPRoALkO/sYTicl72KR8FanxTdz2XrAaZUjNXVt1bw==</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="2" isList="true"><PADRAO_CAB_ROD Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias/><Columns count="4" isList="true"><value>DS_FANTASIA,System.String</value><value>DS_RODAPE_REPORTS,System.String</value><value>ENDERECO,System.String</value><value>LOGOTIPO,System.Byte[]</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>PADRAO_CAB_ROD</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT HOSPITAL.DS_FANTASIA
+      ,HOSPITAL.DS_RODAPE_REPORTS
+      ,HOSPITAL.DS_ENDERECO||' '||CIDADE.NM_CIDADE||'-'||CIDADE.CD_UF      ENDERECO
+      ,HOSPITAL.LOGOTIPO
+  FROM DBAMV.MULTI_EMPRESAS
+  JOIN DBAMV.HOSPITAL
+    ON MULTI_EMPRESAS.CD_CGC = HOSPITAL.CD_CGC
+  JOIN DBAMV.CIDADE
+    ON HOSPITAL.CD_CIDADE = CIDADE.CD_CIDADE
+  WHERE MULTI_EMPRESAS.CD_MULTI_EMPRESA = {cdMultiEmpresa}</SqlCommand><Type>Table</Type></PADRAO_CAB_ROD><PROCESSOS Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias/><Columns count="3" isList="true"><value>GOLIVE,System.String</value><value>REALIZADO,System.Double</value><value>TIPO,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>PROCESSOS</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT GoLive, Tipo, Realizado
+
+from(
+select
+'MacroProcesso - Atendimento' GoLive,
+'Atendimentos Ambulatorial' tipo,
+count (a.cd_atendimento) Realizado
+ from dbamv.atendime a
+where a.tp_atendimento = 'A'
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+ union ALL
+
+select
+'MacroProcesso - Atendimento' GoLive,
+'Atendimentos Urgência'  tipo,
+count (a.cd_atendimento) Realizado
+
+ from dbamv.atendime a
+where a.tp_atendimento = 'U'
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+      union all
+
+      select
+'MacroProcesso - Atendimento' GoLive,
+'Atendimentos Externo' tipo,
+count (a.cd_atendimento) Realizado
+
+ from dbamv.atendime a
+where a.tp_atendimento = 'E'
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+ UNION
+
+select
+'MacroProcesso - Atendimento' GoLive,
+  'Atendimentos Internação GO LIVE ' tipo,
+count (a.cd_atendimento) Realizado
+
+from dbamv.atendime a
+where a.tp_atendimento = 'I'
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+UNION ALL
+
+SELECT
+'MacroProcesso - Atendimento' GoLive,
+  'Solicitacao para Central de leitos' tipo,
+Count(lei.cd_solic_transferencia_leito)
+
+ FROM solic_transferencia_leito lei
+ WHERE Trunc(lei.dt_solic_transf) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+UNION ALL
+
+select
+'MacroProcesso - Atendimento' GoLive,
+'Censo de Internação' tipo,
+count (a.cd_atendimento) Realizado
+
+from dbamv.atendime a
+where a.tp_atendimento = 'I'
+--and a.nm_usuario not in 'DBAMV'
+AND a.dt_alta IS  null
+and  Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+      union all
+
+      select
+'MacroProcesso - Atendimento' GoLive,
+'Alta Hospitalar' tipo,
+count (a.cd_atendimento) Realizado
+
+ from dbamv.atendime a
+where a.tp_atendimento = 'I'
+and a.dt_alta is not null
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_alta) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+  UNION ALL
+
+
+      select
+'MacroProcesso - Atendimento' GoLive,
+'Alta Médica' tipo,
+count (a.cd_atendimento) Realizado
+
+ from dbamv.atendime a
+where a.tp_atendimento = 'I'
+and a.dt_alta_medica is not null
+--and a.nm_usuario not in 'DBAMV'
+and  Trunc(a.dt_alta) BETWEEN Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+union all
+
+select
+'MacroProcesso - Atendimento' GoLive,
+'Senhas retiradas TOTEM' tipo,
+count (TRI.CD_SENHA) Realizado
+
+ from  DBAMV.SACR_SENHA_TRIAGEM TRI
+where  tri.dh_senha between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+UNION ALL
+
+SELECT
+'MacroProcesso - Apoio Limpeza' GoLive,
+'Limpeza de Leito' tipo,
+count (cd_SOLIC_LIMPEZA) Realizado
+
+ from  DBAMV.SOLIC_LIMPEZA
+
+ where Trunc(DT_realizado) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+                          AND tp_solicitacao = 'A'
+
+
+ union all
+
+
+ select
+'MacroProcesso - Agendamento' GoLive,
+'Agendamento de consulta' tipo,
+count (i.cd_it_agenda_central) Realizado
+
+ from dbamv.it_agenda_central i, dbamv.escala_central ec, dbamv.agenda_central ac, dbamv.atendime a
+where i.cd_agenda_central = ac.cd_agenda_central
+and   ac.cd_escala_central = ec.cd_escala_central
+and i.cd_atendimento = a.cd_atendimento (+)
+and i.nm_paciente is not null
+--AND I.CD_USUARIO NOT IN 'DBAMV'
+and ec.tp_escala = 'A'
+and  Trunc(i.dt_gravacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+       
+     union all               
+
+      select
+'MacroProcesso - Agendamento' GoLive,
+'Agendamento de imagem' tipo,
+count (i.cd_it_agenda_central) Realizado
+
+ from dbamv.it_agenda_central i, dbamv.escala_central ec, dbamv.agenda_central ac, dbamv.atendime a
+where i.cd_agenda_central = ac.cd_agenda_central
+and   ac.cd_escala_central = ec.cd_escala_central
+and  i.cd_atendimento = a.cd_atendimento (+)
+and i.nm_paciente is not null
+--AND I.CD_USUARIO NOT IN 'DBAMV'
+and ec.tp_escala = 'I'
+and  Trunc(i.dt_gravacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+
+     union all
+
+      select
+'MacroProcesso - Agendamento' GoLive,
+'Agendamento de laboratorio' tipo,
+count (i.cd_it_agenda_central) Realizado
+
+from dbamv.it_agenda_central i, dbamv.escala_central ec, dbamv.agenda_central ac, dbamv.atendime a
+where i.cd_agenda_central = ac.cd_agenda_central
+and   ac.cd_escala_central = ec.cd_escala_central
+and i.cd_atendimento = a.cd_atendimento (+)
+and i.nm_paciente is not null
+--AND I.CD_USUARIO NOT IN 'DBAMV'
+and ec.tp_escala = 'L'
+and  Trunc(i.dt_gravacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+                                                   
+      union all
+
+select
+'MacroProcesso - Centro cirurgico' GoLive,
+'Cirurgias de Urgência' tipo,
+count (b.cd_aviso_cirurgia) Realizado
+
+from dbamv.aviso_cirurgia b,atendime a
+where a.cd_atendimento = b.cd_atendimento
+AND b.tp_situacao = 'A'
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(b.dt_aviso_cirurgia) between Trunc(SYSDATE)
+                           and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+UNION ALL
+
+SELECT
+'MacroProcesso - Centro cirurgico' GoLive,
+'Cirurgias Canceladas' tipo,
+count (b.cd_aviso_cirurgia) Realizado
+
+from dbamv.aviso_cirurgia b,atendime a
+where a.cd_atendimento = b.cd_atendimento
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+AND b.tp_situacao = 'C'
+and Trunc(b.dt_aviso_cirurgia) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+                          UNION ALL
+
+ SELECT
+'MacroProcesso - Centro cirurgico' GoLive,
+'Cirurgias Agendadas' tipo,
+count (b.cd_aviso_cirurgia) Realizado
+
+from dbamv.aviso_cirurgia b,atendime a
+where a.cd_atendimento = b.cd_atendimento
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+AND b.tp_situacao = 'G'
+and Trunc(b.dt_aviso_cirurgia) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+      union all
+
+  select
+'MacroProcesso - Centro cirurgico' GoLive,
+'Cirurgias Realizadas' tipo,
+count (b.cd_aviso_cirurgia) Realizado
+
+from dbamv.aviso_cirurgia b,atendime a
+where a.cd_atendimento = b.cd_atendimento
+and b.tp_situacao = 'R'
+--AND B.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(b.dt_aviso_cirurgia) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+      union all
+
+select
+'MacroProcesso - Centro cirurgico' GoLive,
+'Descrição de cirurgia' tipo,
+count (b.cd_aviso_cirurgia) Realizado
+
+ from dbamv.aviso_cirurgia b,atendime a
+where a.cd_atendimento = b.cd_atendimento
+--and b.sn_libera_aviso = 'S'
+--AND B.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(b.dt_aviso_cirurgia) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+      union all
+
+        select
+'MacroProcesso - Centro cirurgico' GoLive,
+'Ficha obstetrica' tipo,
+count (a.cd_atendimento) Realizado
+
+from dbamv.atendime a
+where a.tp_atendimento = 'I'
+and  a.cd_atendimento_pai is not null
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(a.dt_atendimento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+UNION ALL
+
+SELECT
+'MacroProcesso - Documentos Eletrônicos' GoLive,
+'Documentos Clinicos' tipo,
+ Count (pdc.Cd_Documento_clinico) Realizado
+  FROM Dbamv.Pw_Documento_Clinico   Pdc
+     , Dbamv.Pw_Editor_Clinico      Pec
+     , Dbamv.Atendime               Ate
+     , Dbamv.Editor_Documento       Doc
+     , Dbamv.Paciente               Pac
+ WHERE Pec.Cd_Documento_Clinico    = Pdc.Cd_Documento_Clinico
+   AND Pdc.Cd_Atendimento          = Ate.Cd_Atendimento
+   AND Pec.Cd_Documento            = Doc.Cd_Documento
+   AND Ate.Cd_Paciente             = Pac.Cd_Paciente
+   and Trunc(pdc.dh_fechamento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+                         -- AND pdc.CD_USUARIO NOT IN 'DBAMV'
+
+ union all
+
+select
+'MacroProcesso - Médico' GoLive,
+'Prescrições Médicas' tipo,
+count (c.cd_pre_med) Realizado
+
+from dbamv.pre_med c , dbamv.atendime a
+where a.cd_atendimento = c.cd_atendimento
+and  c.tp_pre_med = 'M'
+--AND C.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(c.dh_criacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS') 
+           union all
+select
+'MacroProcesso - Médico' GoLive,                                                                      
+'Evolução Médica' tipo,
+count (a.cd_pre_med) Realizado
+
+FROM pre_med A
+WHERE ds_evolucao IS NOT NULL
+AND tp_pre_med = 'M'
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(a.dh_criacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+           union all
+select
+'MacroProcesso - Assistencial' GoLive,
+'Avaliação' tipo,
+count (pa.cd_avaliacao) Realizado
+
+from dbamv.pagu_avaliacao pa, atendime a
+where a.cd_atendimento = pa.cd_atendimento
+--AND PA.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(pa.dh_avaliacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+ union all
+
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Prescrições Enfermagem' tipo,
+count (c.cd_pre_med) Realizado
+
+from dbamv.pre_med c , atendime a
+where a.cd_atendimento = c.cd_atendimento
+and  c.tp_pre_med = 'E'
+--AND C.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(c.dt_pre_med) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+           union all
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Evolução Enfermagem' tipo,
+count (a.cd_pre_med) Realizado
+
+FROM pre_med A
+WHERE ds_evolucao IS NOT NULL
+AND tp_pre_med &lt;&gt; 'M'
+--AND A.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(a.dh_criacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+  union all
+
+  select
+'MacroProcesso - Enfermagem' GoLive,
+'Aferições' tipo,
+count (sv.cd_coleta_sinal_vital) Realizado
+
+from dbamv.coleta_sinal_vital sv , atendime a
+where a.cd_atendimento = sv.cd_atendimento
+--AND SV.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(sv.data_coleta) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+                          UNION ALL
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Evolução de Técnico' tipo,
+count (tec.cd_evo_enf) Realizado
+
+from dbamv.evo_enf tec
+WHERE Trunc(tec.dt_evo_enf) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+      union all
+SELECT
+'MacroProcesso - Enfermagem' GoLive,
+'Balanço Hídrico' tipo,
+count (bh.cd_atendimento) Realizado
+
+from dbamv.pw_balanco_hidrico bh , atendime a
+WHERE a.cd_atendimento = bh.cd_atendimento
+--AND BH.CD_USUARIO NOT IN 'DBAMV'
+AND Trunc(bh.dt_referencia) between Trunc(SYSDATE)
+                         and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+union all
+
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Classificação de risco' tipo,
+count (SAC.CD_CLASSIFICACAO_RISCO) Realizado
+
+ from  DBAMV.SACR_CLASSIFICACAO_RISCO SAC
+  where Trunc(sac.dh_classificacao_risco) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+union all
+
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Checagem de enfermagem' tipo,
+count (chec.cd_itpre_med) Realizado
+
+FROM DBAMV.hritpre_cons chec
+  where Trunc(chec.dh_checagem) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+/*
+UNION ALL
+
+select
+'MacroProcesso - Enfermagem' GoLive,
+'Aprazamento de enfermagem' tipo,
+count (chec.cd_itpre_med) Realizado
+
+FROM DBAMV.hritpre_cons chec
+  where chec.dh_checagem between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+*/
+
+ union all
+
+select
+'MacroProcesso - Imagem' GoLive,
+'Exames de Imagem' tipo,
+count (d.cd_ped_rx) Realizado
+
+ from dbamv.ped_rx d, atendime a
+Where a.cd_atendimento = d.cd_atendimento
+AND D.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(d.dt_pedido) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+       union all
+
+  select
+'MacroProcesso - Imagem' GoLive,
+'Laudo de imagem' tipo,
+count (lr.cd_laudo) Realizado
+
+from dbamv.ped_rx d, atendime a, laudo_rx lr
+Where a.cd_atendimento = d.cd_atendimento
+--AND LR.CD_USUARIO_ASSINADO NOT IN 'DBAMV'
+and d.cd_ped_rx = lr.cd_ped_rx
+and Trunc(lr.dt_laudo) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+
+ union all
+
+select
+'MacroProcesso - Laboratório' GoLive,
+'Exames de Laboratorio' tipo,
+count (d.cd_ped_lab) Realizado
+
+from dbamv.ped_lab d, atendime a
+Where a.cd_atendimento = d.cd_atendimento
+--AND D.NM_USUARIO NOT IN 'DBAMV'
+and Trunc(d.dt_pedido) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+             union all
+select
+'MacroProcesso - Laboratório' GoLive,
+'Laudo de laboratorio' tipo,
+count (i.cd_ped_lab) Realizado
+
+from dbamv.ped_lab d, atendime a, dbamv.itped_lab i
+Where a.cd_atendimento = d.cd_atendimento
+and d.cd_ped_lab = i.cd_ped_lab
+--AND I.CD_USUARIO_ASSINADO NOT IN 'DBAMV'
+and i.dt_laudo is not null
+and Trunc(i.dt_laudo) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Solicitações Atendidas de pacientes' tipo,
+count (t.cd_solsai_pro) Realizado
+
+ from dbamv.solsai_pro t, dbamv.atendime a
+where t.cd_atendimento = a.cd_atendimento
+and   t.tp_solsai_pro = 'P'
+and   t.tp_situacao = 'S'
+--AND T.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(t.dt_solsai_pro) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Solicitações Atendidas para setor' tipo,
+count (t.cd_solsai_pro) Realizado
+
+ from dbamv.solsai_pro t, dbamv.atendime a
+where t.cd_atendimento = a.cd_atendimento (+)
+and   t.tp_situacao = 'S'
+and   t.tp_solsai_pro = 'S'
+--AND T.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(t.dt_solsai_pro) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Solicitações Atendidas para estoque' tipo,
+count (t.cd_solsai_pro) Realizado
+
+ from dbamv.solsai_pro t, dbamv.atendime a
+where t.cd_atendimento = a.cd_atendimento (+)
+and   t.tp_situacao = 'S'
+and   t.tp_solsai_pro = 'E'
+--AND T.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(t.dt_solsai_pro) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Devolução de paciente' tipo,
+count (t.cd_solsai_pro) Realizado
+
+ from dbamv.solsai_pro t, dbamv.atendime a
+where t.cd_atendimento = a.cd_atendimento
+and   t.tp_situacao = 'S'
+and   t.tp_solsai_pro = 'C'
+--AND T.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(t.dt_solsai_pro) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Solicitação Devolução de paciente' tipo,
+count (t.cd_solsai_pro) Realizado
+
+ from dbamv.solsai_pro t, dbamv.atendime a
+where t.cd_atendimento = a.cd_atendimento
+and   t.tp_situacao = 'P'
+and   t.tp_solsai_pro = 'C'
+AND T.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(t.dt_solsai_pro) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Entrada de produto'  tipo,
+count (p.cd_ent_pro) Realizado
+
+from dbamv.ent_pro p, dbamv.atendime a
+where p.cd_atendimento = a.cd_atendimento (+)
+--AND P.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(p.dt_entrada) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Gasto de sala de cirurgia' tipo,
+count (k.cd_mvto_estoque) Realizado
+
+ from dbamv.mvto_estoque k, dbamv.atendime a
+where k.cd_atendimento = a.cd_atendimento (+)
+and   k.cd_aviso_cirurgia is not null
+--AND K.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(k.dt_mvto_estoque) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+ union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Entrada de serviço' tipo,
+count (s.cd_ent_serv) Realizado
+
+ from dbamv.ent_serv s
+ where Trunc(s.dt_entrada) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+                          AND S.CD_USUARIO NOT IN 'DBAMV'
+
+
+      union all
+
+select
+'MacroProcesso - Suprimentos' GoLive,
+'Entrada de consignado' tipo,
+count (p.cd_ent_pro) Realizado
+
+ from dbamv.ent_pro p, dbamv.atendime a
+where p.cd_atendimento = a.cd_atendimento (+)
+and tp_documento_entrada = 'C'
+                      --AND P.CD_USUARIO NOT IN 'DBAMV'
+and Trunc(p.dt_entrada) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+UNION ALL
+
+ SELECT
+     'MacroProcesso - Compras' GoLive,
+     'Ordem de Compras' tipo,
+     Count(cd_ord_com)  realizado
+    FROM DBAMV.ORD_COM
+          WHERE Trunc(dt_ord_com) between Trunc(SYSDATE)
+                               and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+                               UNION ALL
+
+      SELECT
+     'MacroProcesso - Compras' GoLive,
+     'Solicitacao de Compras' tipo,
+     Count(cd_sol_com) realizado
+    FROM DBAMV.sol_com
+          WHERE dt_sol_com between Trunc(SYSDATE)
+                               and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:mi:ss')
+
+
+union all
+
+select
+'MacroProcesso - Faturamento convênio' GoLive,
+'Contas fechadas internados'  tipo,
+count (distinct rf.cd_reg_fat) Realizado
+
+ from dbamv.REG_FAT RF, dbamv.atendime a
+where a.cd_atendimento = rf.cd_atendimento
+and   rf.cd_convenio &lt;&gt; 1
+and rf.dt_fechamento is not null
+--AND RF.NM_USUARIO NOT IN 'DBAMV'
+and   rf.sn_fechada = 'S'
+and Trunc(rf.dt_fechamento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+       union all
+
+ select
+'MacroProcesso - Faturamento convênio' GoLive,
+'Contas fechadas ambulatorial' tipo,
+count (distinct reg.cd_reg_amb) Realizado
+
+ from dbamv.REG_amb ra, itreg_amb reg, dbamv.atendime a
+where ra.cd_reg_amb  = reg.cd_reg_amb
+and   reg.cd_atendimento = a.cd_atendimento
+and reg.dt_fechamento is not null
+and   ra.cd_convenio &lt;&gt; 2
+--AND REG.CD_USUARIO NOT IN 'DBAMV'
+and   reg.sn_fechada = 'S'
+and Trunc(reg.dt_fechamento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+union all
+
+select
+'MacroProcesso - Faturamento convênio' GoLive,
+'Guias autorizadas' tipo,
+count (G.CD_GUIA) Realizado
+
+ from  DBAMV.GUIA G
+ where g.dt_autorizacao is not null
+ and g.tp_guia &lt;&gt; 'C'
+ and g.tp_situacao = 'A'
+ and Trunc(g.dt_autorizacao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+ UNION ALL
+
+select
+'MacroProcesso - Faturamento convênio' GoLive,
+'Remessas' tipo,
+count (re.cd_remessa) Realizado
+
+ from  DBAMV.remessa_fatura re
+where re.cd_remessa not in (select cd_remessa from dbamv.remessa_fatura where ds_remessa like 'AIH%')
+and re.cd_remessa not in (select cd_remessa from dbamv.remessa_fatura where ds_remessa like 'APAC%')
+and re.cd_remessa not in (select cd_remessa from dbamv.remessa_fatura where ds_remessa like 'BPA%')
+and Trunc(re.dt_fechamento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+ UNION ALL
+
+  select
+'MacroProcesso - Faturamento' tipo,
+'Movimentação de Documentos' GoLive,
+count (a.cd_protocolo_doc) Realizado
+
+from dbamv.protocolo_doc a
+where Trunc(a.dt_envio) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+
+
+UNION ALL
+
+  SELECT
+     'MacroProcesso - Financeiro' GoLive,
+     'Contas a pagar' tipo,
+      Count(cd_con_pag) Realizado
+
+      FROM con_pag
+     WHERE Trunc(dt_lancamento) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+UNION ALL
+
+  SELECT
+     'MacroProcesso - Financeiro' GoLive,
+     'Contas a receber' tipo,
+      Count(cd_con_rec) Realizado
+
+      FROM con_rec
+     WHERE Trunc(dt_emissao) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+                          UNION ALL
+
+
+           SELECT
+     'MacroProcesso - Financeiro' GoLive,
+     'Movimentação do CAIXA' tipo,
+      Count(cd_MOV_CAIXA) Realizado
+
+      FROM MOV_CAIXA
+     WHERE Trunc(dt_MOVIMENTACAO) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+                          UNION ALL
+
+
+SELECT
+     'MacroProcesso - Financeiro' GoLive,
+     'Movimentação de Contas Correntes' tipo,
+      Count(cd_MOV_concor) Realizado
+
+      FROM MOV_CONCOR
+     WHERE Trunc(dt_MOVIMENTACAO) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+UNION ALL
+
+               SELECT
+     'MacroProcesso - Contabilidade' GoLive,
+     'Lançamentos Contabeis' tipo,
+      Count(cd_lcto_contabil) Realizado
+
+      FROM lcto_contabil
+     WHERE Trunc(dt_integra) between Trunc(SYSDATE)
+                          and to_date('31.12.2023 23:59:00', 'dd/mm/yyyy HH24:MI:SS')
+
+
+  ) GOlive        
+
+
+
+
+
+
+WHERE {V_VAR}
+and realizado &gt;= {V_PROCESSO}</SqlCommand><Type>Table</Type></PROCESSOS></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="3" isList="true"><value>,cdMultiEmpresa,,,System.Int32,_x0031_,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_VAR,V_VAR,,System.String,_x0031__x003d_1,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_PROCESSO,Processo_x003a_,,System.Int32,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_CheckedStates_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_2_x0022__x0020_isList_x003d__x0022_true_x0022__x003e__x003c_value_x003e_0_x003c__x002f_value_x003e__x003c_value_x003e_1_x003c__x002f_value_x003e__x003c__x002f_Keys_x003e__x003c_SortDirection_x003e_None_x003c__x002f_SortDirection_x003e__x003c_SortField_x003e_Label_x003c__x002f_SortField_x003e__x003c_Values_x0020_count_x003d__x0022_2_x0022__x0020_isList_x003d__x0022_true_x0022__x003e__x003c_value_x003e_Todos_x003c__x002f_value_x003e__x003c_value_x003e_Realizados_x003c__x002f_value_x003e__x003c__x002f_Values_x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><Key>0da105d76d0142a09fa3a5b4343672c4</Key><MetaTags count="1" isList="true"><value>reportId,_x0031_01</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="5" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="4" isList="true"><PageHeaderBand1 Ref="6" isKey="true" type="PageHeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.4,20,1.2</ClientRectangle><Components count="8" isList="true"><Text1 Ref="7" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.6,0,9.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,10,Bold</Font><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="5"/><Parent isRef="6"/><Text>{PADRAO_CAB_ROD.DS_FANTASIA}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text1><Image1 Ref="8" isKey="true" type="Image"><AspectRatio>True</AspectRatio><Brush>Transparent</Brush><ClientRectangle>0,0,2.6,1.19</ClientRectangle><Conditions count="0" isList="true"/><DataColumn>PADRAO_CAB_ROD.LOGOTIPO</DataColumn><Expressions count="0" isList="true"/><IconColor>68, 114, 196</IconColor><Margins>0,0,0,0</Margins><Name>Image1</Name><Page isRef="5"/><Parent isRef="6"/><Stretch>True</Stretch><VertAlignment>Center</VertAlignment></Image1><Text2 Ref="9" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0,1.8,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="5"/><Parent isRef="6"/><Text>{PageNofM}</Text><TextBrush>[0:0:0]</TextBrush></Text2><Text3 Ref="10" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>19.4,0.8,0.6,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="5"/><Parent isRef="6"/><Text>{Time}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="11" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text3><Text4 Ref="12" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0.8,1.2,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="5"/><Parent isRef="6"/><Text>{Today}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="13" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text4><Text5 Ref="14" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0.4,1.8,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><Guid>8adc30aa8fa04b9d89ccc507c50e32a4</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="5"/><Parent isRef="6"/><Text>Emitido em:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text5><Text8 Ref="15" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.6,0.4,9.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,10</Font><Guid>e8be696c9ce7491d8d7450f00887905e</Guid><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="5"/><Parent isRef="6"/><Text>SOULMV</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text8><Text9 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.6,0.8,9.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,10</Font><Guid>a4c4796ad66d4daf81f6c2e8ace92d70</Guid><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="5"/><Parent isRef="6"/><Text>Processos</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text9></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>PageHeaderBand1</Name><Page isRef="5"/><Parent isRef="5"/></PageHeaderBand1><PageFooterBand1 Ref="17" isKey="true" type="PageFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,27.5,20,0.8</ClientRectangle><Components count="4" isList="true"><Text7 Ref="18" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0.1,20,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="5"/><Parent isRef="17"/><Text>End.: {PADRAO_CAB_ROD.ENDERECO}</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text7><Text6 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>4.2,0.5,11.8,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="5"/><Parent isRef="17"/><Text>{PADRAO_CAB_ROD.DS_RODAPE_REPORTS}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text6><Text10 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0.5,1.8,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="5"/><Parent isRef="17"/><Text>{ReportChanged}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="21" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text10><Text12 Ref="22" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>17,0.5,1.2,0.2</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,6</Font><Guid>b9f640085712464bbd7774052fec7375</Guid><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="5"/><Parent isRef="17"/><Text>Última modf.: </Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text12></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>PageFooterBand1</Name><Page isRef="5"/><Parent isRef="5"/></PageFooterBand1><HeaderBand1 Ref="23" isKey="true" type="HeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,2.4,20,0.6</ClientRectangle><Components count="3" isList="true"><Text13 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0,0.2,8.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>f01627c6850a4f568317eb28ebcd3bbc</Guid><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="5"/><Parent isRef="23"/><Text>Macro</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text13><Text14 Ref="25" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>8.4,0.2,8.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>be3e6d3aad4c40079f178c1bba3fd7a7</Guid><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="5"/><Parent isRef="23"/><Text>Tipo</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text14><Text15 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.8,0.2,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>59476d421146467795dd5d32d2bf585d</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="5"/><Parent isRef="23"/><Text>Realizado</Text><TextBrush>Black</TextBrush><Type>Expression</Type></Text15></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Name>HeaderBand1</Name><Page isRef="5"/><Parent isRef="5"/></HeaderBand1><DataPROCESSOS Ref="27" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,3.8,20,0.4</ClientRectangle><Components count="3" isList="true"><DataPROCESSOS_GOLIVE Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>0,0,8.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,9</Font><Margins>0,0,0,0</Margins><Name>DataPROCESSOS_GOLIVE</Name><Page isRef="5"/><Parent isRef="27"/><Text>{PROCESSOS.GOLIVE}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><VertAlignment>Center</VertAlignment></DataPROCESSOS_GOLIVE><DataPROCESSOS_TIPO Ref="29" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>8.4,0,8.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,9</Font><Margins>0,0,0,0</Margins><Name>DataPROCESSOS_TIPO</Name><Page isRef="5"/><Parent isRef="27"/><Text>{PROCESSOS.TIPO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><VertAlignment>Center</VertAlignment></DataPROCESSOS_TIPO><Text11 Ref="30" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.8,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Font>Arial,9</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="5"/><Parent isRef="27"/><Text>{PROCESSOS.REALIZADO}</Text><TextBrush>Black</TextBrush></Text11></Components><Conditions count="0" isList="true"/><DataSourceName>PROCESSOS</DataSourceName><Expressions count="0" isList="true"/><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><LimitRows/><Name>DataPROCESSOS</Name><Page isRef="5"/><Parent isRef="5"/><Sort count="0" isList="true"/></DataPROCESSOS></Components><Conditions count="0" isList="true"/><Expressions count="0" isList="true"/><Guid>010ff6a3b1d44f3990b96be947b1fa00</Guid><Margins>0.5,0.5,0.5,0.5</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Page isRef="5"/><PageHeight>29.7</PageHeight><PageWidth>21</PageWidth><Report isRef="0"/><Watermark Ref="31" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="32" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Padrão</ReportAlias><ReportAuthor>ADC</ReportAuthor><ReportChanged>07/20/2023 10:13:15 AM</ReportChanged><ReportCreated>07/11/2023 01:13:54 PM</ReportCreated><ReportFile>PROCESSO REALIZADO</ReportFile><ReportGuid>fe75bb823b6842e8980ea66fd80dc385</ReportGuid><ReportName>Padrão</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2021.3.7 from 05 August 2021, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>
